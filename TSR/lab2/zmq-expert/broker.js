@@ -1,8 +1,7 @@
 var zmq = require('zmq');
 var frontend = zmq.socket('router');
 var backend  = zmq.socket('router');
-var workers = {}, ready = 0;
-var workqueue = [];
+var workers = {}, queue = [];
 
 if (process.argv.length < 4 || process.argv.length > 5) {
     console.log('Usage: node broker port1 port2 [-v]');
@@ -29,14 +28,15 @@ frontend.on('message', function() {
     for (k in msg)
         debug('\tPart ', k, ': ', msg[k].toString());
     msg.unshift('');
-    workqueue.push(msg);
+    sendWork(msg);
 });
 
 backend.on('message', function() {
     var msg = Array.apply(null, arguments);
+    var newOrReady = true;
     if (msg.length == 4) {
         // Register message
-        if (workers[msg[0]] == undefined || !workers[msg[0]].ready) ready++;
+        if (workers[msg[0]] != undefined && workers[msg[0]].ready) newOrReady = false;
         workers[msg[0]] = {'ready':true,'load':parseInt(msg[2]),'port':parseInt(msg[3])};
         debug('Worker ', msg[0].toString(), ' registered.');
     } else {
@@ -45,29 +45,17 @@ backend.on('message', function() {
         for (k in msg)
             debug('\tPart ', k, ': ', msg[k].toString());
         workers[msg[0]].ready = true;
-        ready++;
         msg.splice(0,2);
         frontend.send(msg);
     }
+    if (newOrReady && queue.length > 0) sendWork(queue.shift());
 });
 
 setInterval(function() {
-    debug('Status check');
     for (w in workers) {
         checkStatus(w);
     }
 }, 20000);
-
-setInterval(function() {
-    debug('Checking msg queue, ready = ', ready, ', workqueue.length = ', workqueue.length);
-    while (workqueue.length > 0 && ready > 0) {
-        for (e in workqueue) {
-            sendWork(workqueue[e]);
-            workqueue.splice(e, 1);
-            ready--;
-        }
-    }
-}, 500);
 
 function sendWork(msg) {
     var minLoad = Number.MAX_VALUE;
@@ -84,24 +72,29 @@ function sendWork(msg) {
         workers[minId].ready = false;
         debug('Sent message to ' + minId);
         for (k in msg)
-            debug('Part ' + k + ': ' + msg[k].toString());
+            debug('\tPart ' + k + ': ' + msg[k].toString());
     } else {
-        workqueue.push(msg);
-        ready++;
+        queue.push(msg);
     }
 }
 
 function checkStatus(id) {
     var req = zmq.socket('req');
-    req.connect('tcp://localhost:' + workers[id].port, function (err) {
-        if (err) {
-            debug('Worker ' + id + ' unavailable.');
+    var responded = false;
+    var t1, t2;
+    setTimeout(function() {
+        if (!responded) {
+            req.on('message', function(){});
+            debug('Worker ', id, ' unavailable.');
             workers[id].load = Number.NaN;
-            ready--;
         }
-    });
+    }, 1000);
+    req.connect('tcp://localhost:' + workers[id].port);
     req.on('message', function(msg) {
+        responded = true;
         debug('Worker ' + id + ' available with load ' + msg.toString() + '.');
+        if (workers[id].load == Number.NaN && workers[id].ready && queue.length > 0)
+            sendWork(queue.shift());
         workers[id].load = parseInt(msg);
         req.close();
     });
