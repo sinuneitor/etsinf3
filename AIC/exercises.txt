@@ -1,0 +1,33 @@
+Exercise 1.1
+
+A is 5% faster
+
+B has 1/3 of 30% less instructions (10% less instructions)
+
+Ta = 1 / (1.05freq) * n   = 0.95 n/freq
+Tb = 1 / freq * (0.9 * n) = 0.9  n/freq
+
+Option B is better
+
+
+Exercise 1.2
+
+25% of ALU (10.75%)
+
+Op      %   CPI --> %       %%      CPI
+ALU     43  1   --> 32.25   36.13   1
+LOAD    21  2   --> 10.25   11.48   2
+STORE   12  2   --> 12      13.45   2
+Branch  24  2   --> 24      26.90   3
+daddm   0   0   --> 10.75   12.04   2
+TOTAL  100  1.57--> 89.25  100      1.91
+
+T(old) =                        1.57 n\freq
+T(new) = 1.91 * 0.8925 n\freq = 1.70 n\freq
+
+The new time is slower, therefore the modification is not worth it.
+
+
+Exercise 1.3
+
+MIPS at 100MHz, program P with 2e6 FLOP

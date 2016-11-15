@@ -1,0 +1,65 @@
+We have a MIPS processor with a 2GHz clock. It is running a program P such that
+
+Instruction     %   CPI
+load            25  1.2
+store           15  1
+add             40  1.4
+mult            10  1.4
+branch          10  1.2
+
+New instructions are introduced:
+load-add
+add-mult
+Both with CPI = 2
+Slow down the clock a 5%
+
+Frequency of new instructions:
+load-add will replace 25% of load instructions and the following add instructions
+add-mult will replace 12.5% of add instructions and the following mult instructions
+
+
+a) Compute the time that program P (with n instructions) needs to be executed
+
+Tp = CPI * Tclock * n = 1.27 cycle/instruction * 5e-10 sec/cycle * n instruction = 6.35e-10 seconds
+CPI is the weighted average of the values in the table above.
+
+
+b) Compute the amount of instructions that P would contain if recompiled with the new instructions
+
+25% of load is 6.25% of the total instructions
+12.5% of add is 5% of the total instructions
+                                    NEW PERCENT     CPI
+add loses 6.25% + 5% = 11.25%   --> 28.75%          1.4
+mult loses 5%                   -->  5   %          1.4
+load loses 6.25%                --> 18.75%          1.2
+load-add                        -->  6.25%          2
+add-mult                        -->  5   %          2
+store                           --> 15   %          1
+branch                          --> 10   %          1.2
+TOTAL                               88.75%
+
+The new program will have 0.89*n instructions
+
+
+c) Compute the new distribution of instructions
+            PERCENT     CPI
+add         32.39%      1.4
+mult         5.63%      1.4
+load        21.13%      1.2
+load-add     7.04%      2
+add-mult     5.63%      2
+store       16.90%      1
+branch      11.27%      1.2
+TOTAL      100   %
+
+
+d) Compute the new CPI
+
+CPI = 1.34348
+
+e) Justify whether this change is worth it (decreased instruction number, decreased speed, increased CPI)
+
+Tp = newCPI * 1 / (freq * 0.95) * (n * 0.89) = 1.34348 / (2e9 * 0.95) * 0.89n = 6.29e-10 seconds
+
+As the time for program P is lower for the modified processor, the modification is worthy (for this specific case)
+
