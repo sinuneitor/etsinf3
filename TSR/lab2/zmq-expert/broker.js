@@ -1,26 +1,34 @@
 var zmq = require('zmq');
+var aux = require('./auxfunctions.js');
 var frontend = zmq.socket('router');
 var backend  = zmq.socket('router');
-var workers = {}, queue = [];
+var config   = zmq.socket('rep');
+var ready = [], workers = {}, queue = [];
+var policy = {'distribution':'equitable','adjustFactor':1};
+var statusTimer;
 
-if (process.argv.length < 4 || process.argv.length > 5) {
-    console.log('Usage: node broker port1 port2 [-v]');
+if (process.argv.length < 5 || process.argv.length > 6) {
+    console.log('Usage: node broker frontEndPort backEndPort configPort [-v]');
     process.exit(-1);
 }
 
 var frontport = process.argv[2];
 var backport  = process.argv[3];
+var configPort = process.argv[4];
 var debug = function() {};
-if (process.argv.length == 5 && process.argv[4] == '-v') {
+if (process.argv.length == 6 && process.argv[5] == '-v') {
     debug = console.log;
 }
 debug('Arguments are correct!');
 
 frontend.bindSync('tcp://*:' + frontport);
 backend.bindSync('tcp://*:' + backport);
+config.bindSync('tcp://*:' + configPort);
 
+debug('Policy is ' + policy);
 debug('Frontend ready at port ' + frontport);
 debug('Backend  ready at port ' + backport);
+debug('Config   ready at port ' + configPort);
 
 frontend.on('message', function() {
     var msg = Array.apply(null, arguments);
@@ -36,40 +44,72 @@ backend.on('message', function() {
     var newOrReady = true;
     if (msg.length == 4) {
         // Register message
-        if (workers[msg[0]] != undefined && workers[msg[0]].ready) newOrReady = false;
-        workers[msg[0]] = {'ready':true,'load':parseInt(msg[2]),'port':parseInt(msg[3])};
+        ready.push({'id':msg[0],'load':parseInt(msg[2]),'port':parseInt(msg[3]),'jobs':0})
         debug('Worker ', msg[0].toString(), ' registered.');
     } else {
         // Response message
         debug('Response from worker ', msg[0].toString());
         for (k in msg)
             debug('\tPart ', k, ': ', msg[k].toString());
-        workers[msg[0]].ready = true;
+        workers[msg[0]].jobs++;
+        ready.push(workers[msg[0]]);
         msg.splice(0,2);
         frontend.send(msg);
     }
     if (newOrReady && queue.length > 0) sendWork(queue.shift());
 });
 
-setInterval(function() {
-    for (w in workers) {
-        checkStatus(w);
+config.on('message', function(msg){
+    var policy = JSON.parse(msg);
+    if (statusTimer != undefined)
+        statusTimer.cancelInterval();
+    if (policy.distribution == 'lowerLoad') {
+        statusTimer = setInterval(checkAll, policy.secs * 1000);
+    } else {
+        statusTimer = undefined;
     }
-}, 20000);
+    debug('Policy has been updated to ' + policy);
+});
+
+
+function checkAll() {
+    for (w in workers) {
+        checkStatus(workers[w]);
+    }
+}
 
 function sendWork(msg) {
-    var minLoad = Number.MAX_VALUE;
-    var minId   = undefined;
-    for (w in workers) {
-        if (workers[w].ready && workers[w].load < minLoad) {
-            minLoad = workers[w].load;
-            minId   = w;
+    var minId  = undefined;
+    var minPos = undefined;
+    if (policy.distribution == 'equitable') {
+        var minJobs = Number.MAX_VALUE;
+        for (w in ready) {
+            if (ready[w].jobs < minLoad) {
+                minJobs = ready[w].jobs;
+                minId   = ready[w].id;
+                minPos  = w;
+            }
+        }
+    } else if (policy.distribution == 'lowerLoad') {
+        if (policy.lowLoadWorkers == 1) {
+            var minLoad = Number.MAX_VALUE;
+            for (w in ready) {
+                if (ready[w].load < minLoad) {
+                    minLoad = ready[w].load;
+                    minId   = ready[w].id;
+                    minPos  = w;
+                }
+            }
+        } else {
+            sortLoad(ready);
+            minPos = aux.randNumber(policy.lowLoadWorkers);
+            minId = ready[minPos];
         }
     }
     if (minId != undefined) {
         msg.unshift(minId);
         backend.send(msg);
-        workers[minId].ready = false;
+        ready.splice(minPos, 1);
         debug('Sent message to ' + minId);
         for (k in msg)
             debug('\tPart ' + k + ': ' + msg[k].toString());
@@ -78,7 +118,7 @@ function sendWork(msg) {
     }
 }
 
-function checkStatus(id) {
+function checkStatus(worker) { // change everything from id to worker
     var req = zmq.socket('req');
     var responded = false;
     var t1, t2;
@@ -98,5 +138,5 @@ function checkStatus(id) {
         workers[id].load = parseInt(msg);
         req.close();
     });
-    req.send('ping');
+    req.send('Status ping');
 }
