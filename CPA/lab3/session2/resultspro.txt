@@ -1,0 +1,2 @@
+-c1 | Tiempo: 0.49 (4 procesos)
+-c5 | Tiempo: 41.87 (4 procesos)
