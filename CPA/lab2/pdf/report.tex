@@ -57,7 +57,7 @@
 To properly understand the values obtained by measuring the different programs, a few concepts must be defined:
 \begin{itemize}
 	\item \textbf{Overhead}: time spen by the system creating, activating and deactivating threads when entering and exiting parallel regions. This time increases with the number of threads, though the computing time might be reduced. This increase is significant if the computing time of a thread is smaller than its overhead.
-	\item \textbf{Speed-up}: improvement in speed of execution of a task by the parallel algorithm in comparison to its sequential counterpart. It is a multiplier over the speed of the sequential algorithm: values greater than 1 are an improvement, while values lower than 1 are a diminishmenU
+	\item \textbf{Speed-up}: improvement in speed of execution of a task by the parallel algorithm in comparison to its sequential counterpart. It is a multiplier over the speed of the sequential algorithm: values greater than 1 are an improvement, while values lower than 1 are a diminishment.
 	\item \textbf{Efficiency}: relation between the speedup and the number of threads available. This signifies the amount that each thread contributed to the speedup.
 \end{itemize}
 
@@ -185,10 +185,5 @@ As with previous measurements, loop \texttt{x} approaches 0 with the increase of
 \section{Conclusions}
 This laboratory practice is an extensive walk-through of OpenMP and parallelization techniques and best practices.
 
-This practice as provided experience on what loops can be parallelized, how thread overhead affects the performance of multithreaded applications, and how clever algorithm modifications can always overpower just throwing more metal to the problem, as is the case in the implementation of \gitline{encaja-e3.c}.
-\begin{itemize}
-    \item Thread overhead may become a problem with inner loops.
-    \item Clever changes to sequential algorithms can outperform simpler parallel ones.
-    \item Appropriate control structures for critical sections and shared, private variables.
-\end{itemize}
+This practice has provided experience on what loops can be parallelized, how thread overhead affects the performance of multithreaded applications, and how clever algorithm modifications can always overpower just throwing more metal to the problem, as is the case in the implementation of \gitline{encaja-e3.c}. It has also further reinforced our knowledge in which control structures must be used for private variables, critical sections and shared values using OpenMP.
 \end{document}
