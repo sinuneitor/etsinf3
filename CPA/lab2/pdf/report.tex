@@ -56,7 +56,7 @@
 \label{sec:theoretical}
 To properly understand the values obtained by measuring the different programs, a few concepts must be defined:
 \begin{itemize}
-	\item \textbf{Overhead}: time spen by the system creating, activating and deactivating threads when entering and exiting parallel regions. This time increases with the number of threads, though the computing time might be reduced. This increase is significant if the computing time of a thread is smaller than its overhead.
+	\item \textbf{Overhead}: time spent by the system creating, activating and deactivating threads when entering and exiting parallel regions. This time increases with the number of threads, though the computing time might be reduced. This increase is significant if the computing time of a thread is smaller than its overhead.
 	\item \textbf{Speed-up}: improvement in speed of execution of a task by the parallel algorithm in comparison to its sequential counterpart. It is a multiplier over the speed of the sequential algorithm: values greater than 1 are an improvement, while values lower than 1 are a diminishment.
 	\item \textbf{Efficiency}: relation between the speedup and the number of threads available. This signifies the amount that each thread contributed to the speedup.
 \end{itemize}
@@ -77,8 +77,8 @@ The following tables show the results of each experiment. Please note that the t
 	\centering
 	\begin{tabular}{l r}
 		Program            & Execution time \\ \hline
-		\texttt{encaja-e1} 	   & 15.257217      \\
-		\texttt{encaja-e3}      &  2.725587      \\ \hline
+		\texttt{encaja-e1} & 15.257         \\
+		\texttt{encaja-e3} &  2.726         \\ \hline
 	\end{tabular}
 	\caption{Sequential execution times}
 	\label{fig:table-time-seq}
@@ -86,11 +86,11 @@ The following tables show the results of each experiment. Please note that the t
 \begin{figure}[h]
 	\centering
 	\begin{tabular}{l r r r r r}
-		Program               & 2t        & 4t        & 8t        & 16t        & 32t        \\ \hline
-		\texttt{encaja-e2-pJ} 	  & 6.938746  & 3.548883  & 1.970450  & 1.183996   &  0.726187  \\
-		\texttt{encaja-e4-pJ} 	  & 1.439842  & 0.795035  & 0.496000  & 0.330912   &  0.256960  \\
-		\texttt{encaja-e2-pX} 	  & 8.337415  & 5.464151  & 5.557857  & 8.197272   & 12.789012  \\
-		\texttt{encaja-e4-pX}	  & 4.065065  & 4.217589  & 5.164125  & 8.656438   & 13.590685  \\ \hline
+		Program               & 2t     & 4t    & 8t    & 16t   & 32t    \\ \hline
+		\texttt{encaja-e2-pJ} & 6.939  & 3.549 & 1.970 & 1.184 &  0.726 \\
+		\texttt{encaja-e4-pJ} & 1.440  & 0.795 & 0.496 & 0.331 &  0.257 \\
+		\texttt{encaja-e2-pX} & 8.337  & 5.464 & 5.558 & 8.197 & 12.789 \\
+		\texttt{encaja-e4-pX} & 4.065  & 4.218 & 5.164 & 8.656 & 13.591 \\ \hline
 	\end{tabular}
 	\caption{Parallel execution times}
 	\label{fig:table-time}
@@ -120,30 +120,30 @@ Applying the previous formula with $t(n)=t_{encaja-e1}$ and $t(p,n)$ equal to ea
 \begin{figure}[h]
     \centering
     \begin{tabular}{l r r r r r}
-        Program               & 2t       & 4t       & 8t       & 16t      & 32t      \\ \hline
-        \texttt{encaja-e2-pJ}	  &  2.19624 &  4.29407 &  7.73384 & 12.87090 & 20.98510 \\
-        \texttt{encaja-e4-pJ} 	  & 10.58390 & 19.16790 & 30.72410 & 46.05190 & 59.30550 \\
-        \texttt{encaja-e2-pX}	  &  1.82780 &  2.78893 &  2.74191 &  1.85905 &  1.19158 \\
-        \texttt{encaja-e4-pX}	  &  3.74881 &  3.61323 &  2.95096 &  1.76044 &  1.12129 \\ \hline
+        Program               & 2t     & 4t     & 8t     & 16t    & 32t    \\ \hline
+        \texttt{encaja-e2-pJ} &  2.196 &  4.294 &  7.734 & 12.871 & 20.985 \\
+        \texttt{encaja-e4-pJ} & 10.584 & 19.168 & 30.724 & 46.052 & 59.306 \\
+        \texttt{encaja-e2-pX} &  1.828 &  2.789 &  2.742 &  1.859 &  1.192 \\
+        \texttt{encaja-e4-pX} &  3.749 &  3.613 &  2.951 &  1.760 &  1.121 \\ \hline
     \end{tabular}
     \caption{Speedup}
     \label{fig:table-speedup}
 \end{figure}
 
-An interesting speedup to compute would be that of Exercise 4 respect to Exercise 3. This gives answers the question: How better can Exercise 3 be if parallelized? The answer lays on Figure \ref{fig:table-speedupR3}. The eye-catching situation is the loop \texttt{x}'s row, in which all values are $<0$, and therefore showing that parallelizing loop \texttt{x} provides no improvement respect to the sequential version. The apparent betterment shown in Figure \ref{fig:table-speedup} is respect to the initial program. The threads --- \unskip \, time graph in Figure \ref{fig:graph-time} clearly shows that the performance of \texttt{encaja-e4-pX.c} (yellow) is below all other versions.
-
-In the graph in Figure \ref{fig:graph-speedup} one can appreciate the scale of the improvements of the different versions, with the parallelization of loop \texttt{j} in Exercise 4 greatly exceeding all others 2 or 3 times over. The almost flat lines at the bottom of the graph that show the speedup of loop \texttt{x} demonstrate how insignificant the improvement is respect to loop \texttt{j}.
+An interesting speedup to compute would be that of Exercise 4 respect to Exercise 3, focusing the parallelization and not on the improvement of Exercise 3 over 1. This answers the question: How better can Exercise 3 be if parallelized? The answer lays on Figure \ref{fig:table-speedupR3}. The eye-catching situation is in loop \texttt{x}'s row, in which all values are $<0$, and therefore showing that parallelizing loop \texttt{x} provides no improvement respect to the sequential version. The apparent betterment shown in Figure \ref{fig:table-speedup} is respect to the initial program. The threads --- \unskip \, time graph in Figure \ref{fig:graph-time} clearly shows that the performance of \texttt{encaja-e4-pX.c} (yellow) is below all other versions.
 
 \begin{figure}[h]
     \centering
     \begin{tabular}{l r r r r r}
-        Program               & 2t       & 4t       & 8t       & 16t      & 32t       \\ \hline
-        \texttt{encaja-e4-pJ}	  & 1.898620 & 3.438490 & 5.511530 & 8.261170 & 10.638700 \\
-        \texttt{encaja-e4-pX}	  & 0.672491 & 0.648171 & 0.529368 & 0.315802 &  0.201147 \\ \hline
+        Program               & 2t    & 4t    & 8t    & 16t   & 32t    \\ \hline
+        \texttt{encaja-e4-pJ} & 1.899 & 3.438 & 5.512 & 8.261 & 10.639 \\
+        \texttt{encaja-e4-pX} & 0.672 & 0.648 & 0.529 & 0.316 &  0.201 \\ \hline
     \end{tabular}
     \caption{Speedup of \texttt{encaja-e4} respect to \texttt{encaja-e3}}
     \label{fig:table-speedupR3}
 \end{figure}
+
+In the graph in Figure \ref{fig:graph-speedup} one can appreciate the scale of the improvements of the different versions respect to Exercise 1, with the parallelization of loop \texttt{j} in Exercise 4 greatly exceeding all others 2 or 3 times over. The almost flat lines at the bottom of the graph that show the speedup of loop \texttt{x} demonstrate how insignificant the improvement is respect to loop \texttt{j}.
 
 \begin{figure}[h]
     \centering
@@ -162,17 +162,28 @@ where $p$ is the number of threads and $S(n,p)$ the speedup previously computed.
 \begin{figure}[h]
 	\centering
 	\begin{tabular}{l r r r r r}
-		Program 			  & 2t  	& 4t 	   & 8t 	  & 16t      & 32t 		\\ \hline
-		\texttt{encaja-e2-pJ}	  & 1.09812 & 1.073520 & 0.966730 & 0.804431 & 0.655784	\\
-		\texttt{encaja-e4-pJ}	  & 5.29195 & 4.791970 & 3.840510 & 2.878240 & 1.853300	\\
-		\texttt{encaja-e2-pX}	  & 0.91390 & 0.697233 & 0.342739 & 0.116191 & 0.037237 \\
-		\texttt{encaja-e4-pX}	  & 1.87441 & 0.903308 & 0.368870 & 0.110028 & 0.035040 \\ \hline
+		Program 			  & 2t    & 4t 	  & 8t 	  & 16t   & 32t   \\ \hline
+		\texttt{encaja-e2-pJ} & 1.098 & 1.074 & 0.967 & 0.804 & 0.656 \\
+		\texttt{encaja-e4-pJ} & 5.292 & 4.792 & 3.841 & 2.878 & 1.853 \\
+		\texttt{encaja-e2-pX} & 0.914 & 0.697 & 0.343 & 0.116 & 0.037 \\
+		\texttt{encaja-e4-pX} & 1.874 & 0.903 & 0.369 & 0.110 & 0.035 \\ \hline
 	\end{tabular}
 	\caption{Efficiency}
 	\label{fig:table-efficiency}
 \end{figure}
 
-As with previous measurements, loop \texttt{x} approaches 0 with the increase of thread amount.
+As with the speedup, the efficiency can also be computed respect to Exercise 3. This provides a measure of the improvement provided by the parallelization only, leaving aside the comparison between Exercises 1 and 3.
+
+\begin{figure}[h]
+    \centering
+    \begin{tabular}{l r r r r r}
+        Program               & 2t    & 4t    & 8t    & 16t   & 32t   \\ \hline
+        \texttt{encaja-e4-pJ} & 0.949 & 0.860 & 0.689 & 0.516 & 0.332 \\
+        \texttt{encaja-e4-pX} & 0.336 & 0.162 & 0.066 & 0.020 & 0.006 \\ \hline
+    \end{tabular}
+    \caption{Efficiency respect to Exercise 3}
+    \label{fig:table-efficiencyR3}
+\end{figure}
 
 \begin{figure}[h]
     \centering
@@ -183,7 +194,7 @@ As with previous measurements, loop \texttt{x} approaches 0 with the increase of
 \newpage
 
 \section{Conclusions}
-This laboratory practice is an extensive walk-through of OpenMP and parallelization techniques and best practices.
+This laboratory practice is an extensive walk-through of OpenMP, parallelization techniques and best practices.
 
 This practice has provided experience on what loops can be parallelized, how thread overhead affects the performance of multithreaded applications, and how clever algorithm modifications can always overpower just throwing more metal to the problem, as is the case in the implementation of \gitline{encaja-e3.c}. It has also further reinforced our knowledge in which control structures must be used for private variables, critical sections and shared values using OpenMP.
 \end{document}
