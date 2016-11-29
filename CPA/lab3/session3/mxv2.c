@@ -8,9 +8,9 @@
 /* Valor double aleatorio entre 0 y 1 */
 #define D01  (rand() / (double)RAND_MAX)
 
-/* NOTA: Se trabaja con matrices almacenadas por filas */
-#define M(i,j) M[(i)*n + (j)]
-#define Mloc(i,j) Mloc[(i)*n + (j)]
+/* NOTA: Se trabaja con matrices almacenadas por columnas */
+#define M(i,j) M[(i) + (j)*n]
+#define Mloc(i,j) Mloc[(i) + (j)*n]
 
 void inventa(int m, int n, double *A)
 {
@@ -19,15 +19,15 @@ void inventa(int m, int n, double *A)
 }
 /* Se asume que todos los elementos son no negativos,
  * lo que es cierto si se ha generado con la función inventa */
-double inf_norma(int m, int n, double *A)
+double uno_norma(int m, int n, double *A)
 {
   double max, aux;
-  int j;
+  int i;
 
   max = 0;
-  for (; m > 0; m--) {
+  for (; n > 0; n--) {
     aux = 0;
-    for (j = 0; j < n; j++)
+    for (i = 0; i < m; i++)
       aux += *A++;
     if (aux > max) max = aux;
   }
@@ -51,11 +51,11 @@ void escala(int m, int n, double *A, double e)
 int main(int argc, char *argv[])
 {
   int num_iter = NITER, semilla = 0, n = N, n2,
-      nfilas, nfilascalculo, tama;
+      ncolus, ncoluscalculo, tama;
   char opcion;
   double t;
   int yo, num_procs, proc;
-  double *M, *Mloc, *x, *xloc, *v, *vloc, norma, aux;
+  double *M, *Mloc, *x, *xloc1, *xloc2, *v, norma, aux;
   int i, j, iter;
 
   MPI_Init(&argc, &argv);
@@ -83,41 +83,42 @@ int main(int argc, char *argv[])
       num_iter = atoi(argv[0]); if (num_iter < 0) num_iter = NITER;
       break;
     default:
-      fprintf(stderr, "Uso: mxv1 [-s semilla] [-n tamanyo] [-i iteraciones]\n");
+      fprintf(stderr, "Uso: mxv2 [-s semilla] [-n tamanyo] [-i iteraciones]\n");
       return 1;
     }
   }
 
   /* Calculamos n2, un tamaño múltiplo de num_procs en el que quepa n */
-  nfilas = n / num_procs;
-  if (num_procs * nfilas < n) nfilas++;
-  n2 = num_procs * nfilas;
+  ncolus = n / num_procs;
+  if (num_procs * ncolus < n) ncolus++;
+  n2 = num_procs * ncolus;
 
-  /* Todos los procesos almacenarán un bloque de filas de M (Mloc), de v (vloc)
-   * y del vector x recien calculado (xloc), ademas del vector x de la
-   * iteracion anterior completo (x) */
-  if (yo == 0)   /* El proceso 0 almacenará toda la M y toda la v */
-    tama = n2 * n + n2;
+  /* Todos los procesos almacenarán unas columnas de M (Mloc), las mismas filas
+   * de x de la iteración anterior (xloc1) y toda x recién calculada (xloc2)
+   * (cada uno tiene una parte de la x, la global se obtiene sumando todas) */
+  if (yo == 0)   /* El proceso 0 almacenará toda la M, toda la x y toda la v */
+    tama = n * n2 + n2 + n;
   else
     tama = 0;
-  tama += nfilas * n + 2 * nfilas + n2;   /* Mloc, vloc, xloc, x */
+  tama += n * ncolus + ncolus + n; /* Mloc, xloc1, xloc2 */
 
-  M = malloc(tama * sizeof(double));
+  M = malloc(tama*sizeof(double));
   if (M == NULL) {
     fprintf(stderr, "ERROR: Falta memoria\n");
     return 1;
   }
 
-  tama = nfilas * n;
+  tama = n * ncolus;
+  x = M + n * n2;
   if (yo == 0) {
-    v = M + n2 * n;
-    Mloc = v + n2;
+    x = M + n * n2;
+    v = x + n2;
+    Mloc = v + n;
   } else {
     Mloc = M;
   }
-  vloc = Mloc + tama;
-  xloc = vloc + nfilas;
-  x = xloc + nfilas;
+  xloc1 = Mloc + tama;
+  xloc2 = xloc1 + ncolus;
 
   if (yo == 0) {
     srand(semilla);
@@ -126,45 +127,44 @@ int main(int argc, char *argv[])
     inventa(n, 1, x);
     /* Ya que es inventado, hacer que el sistema sea convergente
      * (la norma de la matriz de iteración M debe ser menor que 1) */
-    escala(n, n, M, 0.9 / inf_norma(n, n, M));
+    escala(n, n, M, 0.9 / uno_norma(n, n, M));
   }
 
   t = MPI_Wtime();
 
-  /* COMUNICACIONES */
-  /* Repartir la M y la v por filas (nfilas a cada proceso)
-   * y enviar la x inicial a todos */
-  MPI_Scatter(M, tama,   MPI_DOUBLE, Mloc, tama,   MPI_DOUBLE, 0, MPI_COMM_WORLD);
-  MPI_Scatter(v, nfilas, MPI_DOUBLE, vloc, nfilas, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-  MPI_Bcast(x, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  /* Repartir la M por columnas y la x por filas (ncolus a cada proceso) */
+  MPI_Scatter(M, tama, MPI_DOUBLE, Mloc, tama, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI_Scatter(x, ncolus, MPI_DOUBLE, xloc1, ncolus, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-  nfilascalculo = n - yo * nfilas;
-  if (nfilascalculo > nfilas)
-    nfilascalculo = nfilas;
+  ncoluscalculo = n - yo * ncolus;
+  if (ncoluscalculo > ncolus)
+    ncoluscalculo = ncolus;
 
   for (iter = 1; iter <= num_iter; iter++) {
-    /* Calcular M*x + v en la parte local de x (xloc) de cada proceso */
-    for (i = 0; i < nfilascalculo; i++) {
-      aux = vloc[i];
-      for (j = 0; j < n; j++)
-        aux += Mloc(i, j) * x[j];
-      xloc[i] = aux;
+    /* Calcular Mloc*xloc1 en xloc2 */
+    for (i = 0; i < n; i++) {
+      aux = 0;
+      for (j = 0; j < ncoluscalculo; j++)
+        aux += Mloc(i, j) * xloc1[j];
+      xloc2[i] = aux;
     }
 
-    /* COMUNICACIONES */
-    /* Preparar la siguiente iteración. Esto es formar la x completa (x)
-     * a partir de los fragmentos de x (xloc) que tiene cada proceso
-     * y dejarla replicada en todos */
-    MPI_Allgather(xloc, nfilas, MPI_DOUBLE, x, nfilas, MPI_DOUBLE, MPI_COMM_WORLD);
+    /* Terminar el cálculo de la x: calcular la suma de todas las xloc2
+     * y añadirle la v, dejando el resultado en el procesador 0.
+     * Y luego repartirlo entre los procesadores, para la siguiente iteración */
+    MPI_Reduce(xloc2, x, n, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    if (yo == 0)
+	  for (i = 0; i < n; i++)
+        x[i] += v[i];
+	MPI_Scatter(x, ncolus, MPI_DOUBLE, xloc1, ncolus, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   } /* fin del bucle iter */
 
 #define ABS(a) ((a) >= 0 ? (a) : -(a))
-  /* Calcular la 1-norma de la parte de x que tiene cada uno */
+  /* Calcular la 1-norma de la parte de x que tiene cada uno (xloc1) */
   norma = 0;
-  for (i = 0; i < nfilascalculo; i++)
-    norma += ABS(xloc[i]);
+  for (i = 0; i < ncoluscalculo; i++)
+    norma += ABS(xloc1[i]);
 
-  /* COMUNICACIONES */
   /* Calcular la 1-norma de toda la x a partir de la 1-norma de cada fragmento.
    * Esto es calcular la suma de todas dejándola en el proceso 0. */
   MPI_Reduce(&norma, &aux, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
@@ -172,8 +172,8 @@ int main(int argc, char *argv[])
   t = MPI_Wtime() - t;
 
   if (yo == 0) {
-	norma = aux;
-	printf("1-norma (%d iteraciones): %.10g\n", num_iter, norma);
+  	norma = aux;
+    printf("1-norma (%d iteraciones): %.10g\n", num_iter, norma);
     printf("Tiempo con %d procesos: %.2f\n", num_procs, t);
   }
 
