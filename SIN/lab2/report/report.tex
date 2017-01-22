@@ -1,0 +1,26 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+
+\title{SIN Lab 2 Report}
+\author{Jesus Vélez Palacios\\Carlos Galindo Jiménez}
+\date{}
+
+\begin{document}
+    \maketitle
+    
+    \section{Objective}
+    To train and evaluate a \texttt{perceptron} algorithm given various datasets. To tune different parameters in the algorithm ($\alpha$ and $\beta$) to obtain the best classifier possible.
+    
+    \section{Process}
+    We have developed a single script (attached in the PoliformaT task) which optimizes the $\alpha$ and $\beta$ parameters of the perceptron algorithm by training with 70\% of the data set and then practicing with the remaining 30\%. \\
+    This script is run once per dataset. Its output is the weights matrix that can be used to classify further elements. This weights matrix should have been trained with the whole dataset, but due to an error ours has trained only with 70\%.
+    
+    Then the number of errors and precision has been computed with the help of another script, as shown in the lab slides.
+    
+    \section{Results}
+    The various datasets have been easier or more difficult to classify according to its size and separability. There are some which prove very difficult to classify, even impossible, such as \texttt{gauss2D} (composed of 2 equal Gaussian distributions). Others take long due to its size, such as \texttt{videos}, and others due to the sheer number of possible classes \texttt{news}.
+    
+    \section{Conclusions}
+    This lab has served as an introduction to octave and as an opportunity to delve deeper into the perceptron algorithm and its parameters, studying its effects and 
+\end{document}

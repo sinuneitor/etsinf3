@@ -1,0 +1,5 @@
+alfaTest(name, initial, step, final)
+betaTest(name, a, initial, step, final)
+perceptron(data, b, a, K, iw)
+training(name, b, a, K)
+errorEstimation(name)
