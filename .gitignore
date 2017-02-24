@@ -5,3 +5,6 @@ TSR/lab1/rproxy/*.json
 node_modules/
 
 .dropbox
+.dropbox.attr
+
+desktop.ini
