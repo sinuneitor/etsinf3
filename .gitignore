@@ -3,3 +3,5 @@
 TSR/test1/*.txt
 TSR/lab1/rproxy/*.json
 node_modules/
+
+.dropbox
