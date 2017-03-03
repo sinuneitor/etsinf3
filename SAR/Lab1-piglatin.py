@@ -26,9 +26,9 @@ def piglatin_word(word):
         return word
 
     ending = ''
-    if word[len(word) - 1] in puntuacion:
-        ending = word[len(word) - 1]
-        word = word[0:len(word) - 1]
+    if word[-1] in puntuacion:
+        ending = word[-1]
+        word = word[:-1]
 
     isupper = 'no'
     if word.isupper():
