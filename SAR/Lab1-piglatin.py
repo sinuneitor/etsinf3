@@ -19,11 +19,14 @@ def piglatin_word(word):
     :param word: la palabra que se debe pasar a Pig Latin
     :return: la palabra traducida
     """
+    vocales = ('a', 'e', 'i', 'o', 'u', 'y')
+    puntuacion = (',', '.', '!', '?', ';')
+
     if not word[0].isalpha():
         return word
 
     ending = ''
-    if word[len(word) - 1] in (',', '.', '!', '?', ';'):
+    if word[len(word) - 1] in puntuacion:
         ending = word[len(word) - 1]
         word = word[0:len(word) - 1]
 
@@ -34,19 +37,10 @@ def piglatin_word(word):
         isupper = 'first'
 
     word = word.lower()
-    consonante = False
     i = 0
-
-    while i < len(word) and word[i] not in ('a', 'e', 'i', 'o', 'u', 'y'):
-        i += 1
-        consonante = True
-
-    if not consonante:
-        word += 'y'
-    else:
-        word = word[i:] + word[0:i]
-
-    word += 'ay'
+    while i < len(word) and word[i] not in vocales: i += 1
+    if i == 0: word += 'y'
+    word = word[i:] + word[:i] + 'ay'
 
     if isupper == 'all':
         word = word.upper()
@@ -77,9 +71,7 @@ if __name__ == "__main__":
 
     if len(sys.argv) > 2 and sys.argv[1] == '-f':
         for filename in sys.argv[2:]:
-            print(filename)
             if not filename.endswith('.txt'): continue
-            print("processing ", filename)
             infile  = open(filename, 'r').read()
             outfile = open(filename[:-4] + "_piglatin.txt", 'w')
             for line in infile.split('\n'):
