@@ -21,7 +21,7 @@ def sort_dic(d):
         yield key, value
 
 def text_statistics(filename, to_lower=True, remove_stopwords=True):
-    # TODO bigramas $ sentence $
+
     text = open(filename, 'r', encoding='utf8')
     lines = 0
     num_words = 0
@@ -40,16 +40,10 @@ def text_statistics(filename, to_lower=True, remove_stopwords=True):
         if to_lower:
             line = line.lower()
 
+        line = clean_text(line)
+
         lastword = "$"
         for word in line.split():
-#            print(word)
-            # Remove symbols TODO midword
-            while 0 < len(word) and not word[0].isalpha():
-                word = word[1:]
-            while 0 < len(word) and not word[-1].isalpha():
-                word = word[:-1]
-                if len(word) == 0: break
-
             # Remove stopwords
             if remove_stopwords and word in stopwords:
                 break
