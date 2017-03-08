@@ -26,8 +26,10 @@ def text_statistics(filename, to_lower=True, remove_stopwords=True):
     lines = 0
     num_words = 0
     num_letters = 0
+    num_bi = 0
     word_dic = {}
     letter_dic = {}
+    bi_dic = {}
     stopwords = []
     for w in open('stopwords_en.txt', 'r', encoding='utf8'):
         stopwords += w
@@ -38,6 +40,7 @@ def text_statistics(filename, to_lower=True, remove_stopwords=True):
         if to_lower:
             line = line.lower()
 
+        lastword = "$"
         for word in line.split():
 #            print(word)
             # Remove symbols TODO midword
@@ -55,11 +58,19 @@ def text_statistics(filename, to_lower=True, remove_stopwords=True):
             word_dic[word] = word_dic.get(word, 0) + 1
             num_words += 1
 
+            # Add bigram to dictionary
+            bi_dic[lastword + " " + word] = bi_dic.get(lastword + " " + word, 0) + 1
+            lastword = word
+            num_bi += 1
+
             # Analyze chars
             for char in word:
                 # Add char to dictionary
                 letter_dic[char] = letter_dic.get(char, 0) + 1
                 num_letters += 1
+        if lastword != "$":
+            bi_dic[lastword + " $"] = bi_dic.get(lastword + " $", 0) + 1
+            num_bi += 1
         lines += 1
 
     # Print info
@@ -68,6 +79,9 @@ def text_statistics(filename, to_lower=True, remove_stopwords=True):
     print ("Vocabulary size: %d" % len(word_dic.keys()))
     print ("Number of symbols: %d" % num_letters)
     print ("Number of different symbols: %d" % len(letter_dic.keys()))
+    print ("Number of bigrams: %d" % num_bi)
+    print ("Number of different bigrams: %d" % len(bi_dic.keys()))
+
 
     print ("Words (alphabetical order):")
     for word, count in sorted(word_dic.items()):
@@ -81,6 +95,13 @@ def text_statistics(filename, to_lower=True, remove_stopwords=True):
     print ("Symbols (by frequency):")
     for letter, count in sort_dic(letter_dic):
         print("\t%s\t%d" % (letter, count))
+    print ("Bigrams (alphabetical order):")
+    for bigram, count in sorted(bi_dic.items()):
+        print("\t%s\t%d" % (bigram, count))
+    print ("Bigrams (by frequency):")
+    for bigram, count in sort_dic(bi_dic):
+        print("\t%s\t%d" % (bigram, count))
+
 
 def syntax():
     print ("\n%s filename.txt [to_lower?[remove_stopwords?]]\n" % sys.argv[0])
