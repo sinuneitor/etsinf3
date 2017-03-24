@@ -8,3 +8,5 @@ node_modules/
 .dropbox.attr
 
 desktop.ini
+
+nltk_data
