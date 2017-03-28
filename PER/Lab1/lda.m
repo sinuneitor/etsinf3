@@ -10,11 +10,7 @@ function [W]=lda(X, xl, k=256)
         indc = find(xl == c);
         nc = columns(indc);
         xc = sum(X(:,indc)')' / nc;
-        cova = zeros(size(Sb));
-        for i=indc
-            cova += (X(:,i) - xc) * (X(:,i) - xc)';
-        endfor
-        Sw += cova / nc;
+        Sw += (X(:,indc) - xc) * (X(:,indc) - xc)' / nc;
         Sb += nc * (xc - m) * (xc - m)';
     endfor
 
