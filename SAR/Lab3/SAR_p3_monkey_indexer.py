@@ -35,7 +35,7 @@ def generate_index(infilename, outfilename):
     # Analyze the text
     for sentence in text.split('.'):
         sentence = clean_text(sentence.lower())
-        if sentence == "": break
+        if sentence == "": continue
         sentence = "$ " + sentence + " $"
         prev = ""
         for word in sentence.split():
