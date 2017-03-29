@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     39663,       1051]
-NotebookOptionsPosition[     38028,        989]
-NotebookOutlinePosition[     38367,       1004]
-CellTagsIndexPosition[     38324,       1001]
+NotebookDataLength[     40084,       1058]
+NotebookOptionsPosition[     38449,        996]
+NotebookOutlinePosition[     38788,       1011]
+CellTagsIndexPosition[     38745,       1008]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -947,18 +947,25 @@ Cell[BoxData[
     RowBox[{"{", 
      RowBox[{
       RowBox[{"a", "\[Rule]", "Red"}], ",", 
-      RowBox[{"b", "\[Rule]", "Blue"}], ",", 
+      RowBox[{"b", "\[Rule]", 
+       RowBox[{"RGBColor", "[", 
+        RowBox[{"0.2", ",", "0.4", ",", "1"}], "]"}]}], ",", 
       RowBox[{"q", "\[Rule]", "Yellow"}], ",", 
-      RowBox[{"p", "\[Rule]", "Purple"}], ",", 
-      RowBox[{"r", "\[Rule]", "Green"}]}], "}"}]}], ",", 
+      RowBox[{"p", "\[Rule]", 
+       RowBox[{"RGBColor", "[", 
+        RowBox[{"0.4", ",", "0", ",", "0.4"}], "]"}]}], ",", 
+      RowBox[{"r", "\[Rule]", 
+       RowBox[{"RGBColor", "[", 
+        RowBox[{"0.8", ",", "1", ",", "0.8"}], "]"}]}]}], "}"}]}], ",", 
    RowBox[{"Mesh", "\[Rule]", "True"}]}], "]"}]], "Input",
  CellChangeTimes->{{3.699172951232333*^9, 3.699173087941485*^9}, 
-   3.699174862605953*^9}],
+   3.699174862605953*^9, {3.699768068571434*^9, 3.699768090828918*^9}, 
+   3.699768131506254*^9, {3.699768165533331*^9, 3.6997682149319057`*^9}}],
 
 Cell[BoxData[
  GraphicsBox[{RasterBox[CompressedData["
-1:eJxTTMoPSmVmYGBgA2JWIAaxIeCDPQNRAKYOl3pSzXmAph6dT297cdkzUPYS
-Uk9ve9HNHSz2IsQBA60ycQ==
+1:eJxTTMoPSmVmYGBgA2JWIAaxIeCDPQMamDUTBE7aQ+ib9qjqMNWTag4qH6bu
+pv1A2YvfHvrbS5x6+tkLoV+imfsSZ3zRx15McQCgNMkN
     "], {{0, 0}, {5, 6}}, {0, 1}], {
     {GrayLevel[
       NCache[-1 + GoldenRatio, 0.6180339887498949]], 
@@ -981,14 +988,14 @@ Uk9ve9HNHSz2IsQBA60ycQ==
    "DefaultBoundaryStyle" -> Automatic, "DefaultPlotStyle" -> 
     Automatic}]], "Output",
  CellChangeTimes->{{3.699173038042713*^9, 3.699173091593512*^9}, 
-   3.6991748643583727`*^9}]
+   3.6991748643583727`*^9, 3.699768139795526*^9, 3.699768215821459*^9}]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]
 },
 WindowSize->{956, 1045},
-WindowMargins->{{Automatic, 2}, {Automatic, 16}},
+WindowMargins->{{2, Automatic}, {Automatic, 16}},
 FrontEndVersion->"11.0 for Linux x86 (64-bit) (September 21, 2016)",
 StyleDefinitions->"Default.nb"
 ]
@@ -1014,14 +1021,14 @@ Cell[6421, 169, 1034, 20, 34, "Input"]
 }, Open  ]],
 Cell[CellGroupData[{
 Cell[7492, 194, 364, 5, 65, "Section"],
-Cell[7859, 201, 954, 23, 107, "Text"],
+Cell[7859, 201, 954, 23, 59, "Text"],
 Cell[CellGroupData[{
 Cell[8838, 228, 181, 4, 45, "Subsection"],
 Cell[9022, 234, 4669, 118, 395, "Input",
  InitializationCell->True],
 Cell[CellGroupData[{
 Cell[13716, 356, 267, 5, 32, "Input"],
-Cell[13986, 363, 1737, 47, 80, "Output"]
+Cell[13986, 363, 1737, 47, 34, "Output"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
@@ -1047,8 +1054,8 @@ Cell[31495, 817, 205, 4, 71, "Subsection"],
 Cell[31703, 823, 4508, 110, 464, "Input",
  InitializationCell->True],
 Cell[CellGroupData[{
-Cell[36236, 937, 703, 18, 57, "Input"],
-Cell[36942, 957, 1034, 26, 443, "Output"]
+Cell[36236, 937, 1060, 25, 80, "Input"],
+Cell[37299, 964, 1098, 26, 443, "Output"]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]
