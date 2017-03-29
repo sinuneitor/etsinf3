@@ -1,0 +1,173 @@
+1. Modelo matematico
+
+Mi -> unidades producidas de la maquina i [1,3]
+
+MAX= 50M1 + 25M2 + 20M3
+
+4M1 + M2 + 2M3 <= 160
+6M1 + M2 + 2M3 <= 180
+
+n = 3
+m = 2
+
+
+2. Simplex Revisado
+
+c = {50, 25, 20, 0, 0}
+x = {M1, M2, M3, a1, a2}'
+A = {   4   1   2   1   0
+        6   1   2   0   1 }
+b = {160, 180}'
+
+Solucion basica inicial (SB0) ---------------------------------------------
+
+Variables basicas xB = [a1;a2]
+B = eye(2) = inv(B)
+
+xB = inv(B) * b = [160;180]
+z0 = cB' * xB = 0
+
+Iteracion 1 ---------------------------------------------------------------
+
+1. Prueba de optimalidad SB0
+
+zJ = (cB' * inv(B)) * aJ
+MAX(cJ - zJ) for all NB J
+
+zM1 = zM2 = zM3 = 0
+
+cM1 - zM1 = 50
+cM2 - zM2 = 25
+cM3 - zM3 = 20
+
+JE = M1
+
+2. yM1 = inv(B) * aM1 = [4;6]
+
+3. Seleccionar IS --> MIN (xB / yJE)
+
+        inv(B)  xB  yM1  xB / yM1
+a1      1   0   160 4     40
+a2      0   1   180 6     30 ----> IS = a2
+cB'*B-1 0   0   Z=0
+
+4. Cambio de base a2 ----> M1
+
+B = [1 4; 0 6]
+
+B-1 = [1 -0.67; 0 0.167]
+
+xB = B-1 * b = [40;30]
+
+Z1 = cB' * xB = [0 50] * [40;30] = 1500
+
+Iteracion 2 ---------------------------------------------------------------
+
+1. Prueba de optimalidad SB1
+
+zJ = (cB' * inv(B)) * aJ = [0 8.3] * aJ
+
+zM2 = [0 8.3] * aM2 =  8.33
+zM3 = [0 8.3] * aM3 = 16.67
+za2 = [0 8.3] * aa2 =  8.33
+
+cM2 - zM2 = 25 - 8.33 = 16.67
+cM3 - zM3 = 20 - 16.67 = 3.33
+ca2 - za2 = 0 - 8.33 = -8.33
+
+JE = M2
+
+2. yM2 = inv(B) * aM2 = [0.33;0.166]
+
+3. Seleccionar IS --> MIN (xB / yJE)
+
+          inv(B)    xB  yM2    xB/yM2
+a1        1 -0.667  40  0.333  120 -------> IS = a1
+M1        0  0.167  30  0.166  180
+cB'*B-1   0  8.333  Z1 = 1500
+Z = cB' * xB
+
+4. Cambio de base a1 ---> M2
+
+B = [1 4; 1 6]
+B-1 = [3 -2; -0.5 0.5]
+
+xB = B-1 * b = [120;10]
+
+Z2 = cB' * xB = [25;50]' * [120;10] = 3500
+
+Iteracion 3 -----------------------------------------------------------------
+
+1. Prueba de optimalidad SB2
+
+zJ = (cB' * inv(B)) * aJ = [50 -25] * aJ
+
+zM3 = [50 -25] * [2;2] = 100 - 50 = 50
+za1 = [50 -25] * [1;0] = 50
+za2 = [50 -25] * [0;1] = -25
+
+cM3 - zM3 = 20 - 50 = -30
+ca1 - za1 = 0 - 50 = -50
+ca2 - za2 = 0 - (-25) = 25
+
+JE = a2
+
+2. ya2 = inv(B) * aa2 = [-2;0.5]
+
+3. Seleccionar IS --> MIN (xB / ya2)
+
+        inv(B)   xB    ya2   xB / ya2
+M2      3   -2   120   -2      -60
+M1     -0.5  0.5  10    0.5     20 ------> IS = M1
+cB'*B-1 50  -25  Z2 = 3500
+Z = cB' * xB
+
+4. Cambio de base M1 ---> a2
+
+B = [1 0; 1 1]
+inv(B) = [1 0; -1 1]
+
+xB = inv(B) * b = [160;20]
+
+Z3 = cB' * xB = [25 0] * [160;20] = 4000
+
+Iteracion 4 -------------------------------------------------------------------
+
+1. Prueba de optimalidad SB3
+
+zJ = (cB' * inv(B)) * aJ = [25 0] * aJ
+
+zM1 = [25 0] * [4;6] = 100
+zM3 = [25 0] * [2;2] = 50
+za1 = [25 0] * [1;0] = 25
+
+cM1 - zM1 = 50 - 100 = -50
+cM3 - zM3 = 20 - 50 = -30
+ca1 - za1 = 0 - 25 = -25
+
+La solucion es optima
+
+          inv(B)  xB
+M2       1    0   160
+a2      -1    1    20
+cB'*B-1 25    0   Z = 4000
+
+
+
+
+Funcion objetivo = 4000
+
+M1 = 0
+M2 = 160
+M3 = 0
+                Holgura     Dual price
+Restriccion1    0           25
+Restriccion2    20          0
+
+
+
+
+
+
+3. Solucion a traves de Lingo
+
