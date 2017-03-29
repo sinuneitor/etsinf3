@@ -1,0 +1,6 @@
+quijote.txt4        444908  24568   10822
+quijote.txt3        381223  22942    9790
+spam.txt4              112     26       1
+spam.txt3               77     22       1
+tirantloblanc.txt4  191910   7224    8917
+tirantloblanc.txt3  167242   6551    9719
