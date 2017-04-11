@@ -1,0 +1,33 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+
+\title{Práctica 1 - AIN}
+\author{Alemany Ibor, Sergio\\Galindo Jiménez, Carlos Santiago}
+
+
+\begin{document}
+    \maketitle
+    
+    Entre los archivos adjuntos se incluyen tres tipos: launchers, managers y los ficheros agente (.asl). Cada fichero agente y launcher está numerado de acuerdo al ejercicio que resuelve. Los ficheros manager se numeran en función del número de agentes que esperan. Se emplea el de capacidad 1 agente en el ejercicio 3 y el de 20 en el ejercicio 4 (para maximizar la probabilidad de que los agentes se vean entre ellos).
+    \section{Mostrar posición actual}
+    Este problema se resuelve completando la siguiente rutina con una simple consulta e impresión por pantalla. La acción se ejecuta dentro de \texttt{perform\_look\_action} para que se ejecute siempre que el agente mire. \href{https://github.com/kauron/etsinf3/blob/master/AIN/Lab1/jasonAgent_ALLIED_obj1.asl#L146}{\texttt{Código fuente}}
+    
+    \section{Mostrar lista de objetos visibles}
+    Este problema es similar al anterior, pero en lugar de consultar la posición se consulta y muestra la creencia que contiene la lista de objetos en el campo de visión del agente. Cada elemento de esa lista es una lista que representa un objeto con la siguiente estructura: [\#, equipo, tipo, ángulo, distancia, salud, posición]. \href{https://github.com/kauron/etsinf3/blob/master/AIN/Lab1/jasonAgent_ALLIED_obj2.asl#L146}{\texttt{Código fuente}}
+    
+    \section{Patrullar un cuadrado}
+    Este problema se soluciona creando una simple máquina de estados que va dirigiendo al agente a la esquina del mapa correspondiente cuando ha llegado a su destino. Para esto se emplea un contador que se inicializa en \texttt{init} a 0 e itera de forma indefinida sobre las cuatro esquinas (0...3 en el código). La máquina sólo avanza de estado en \texttt{update\_targets}, es decir que se ejecutará al iniciar el agente y cada vez que el agente  haya acabado una tarea (es decir, que haya llegado a una esquina del mapa).\\
+    Como las esquinas podrían no ser accesibles, antes de añadir la tarea se comprueba si la posición deseada es válida, en caso contrario se itera desplazando el destino una unidad hacia el centro del mapa hasta que la posición sea válida. \href{https://github.com/kauron/etsinf3/blob/master/AIN/Lab1/jasonAgent\_ALLIED\_obj3.asl#L205}{\texttt{Código fuente}}
+    
+    \section{Seguir a otro agente amigo}
+    Para completar este objetivo el proceso ha sido el siguiente:
+    \begin{itemize}
+        \item Recuperar la lista de objetos visibles para el agente.
+        \item Iterar sobre dicha lista hasta encontrar un agente aliado (comparando el valor de equipo de la lista que representa a cada objeto con el equipo del agente).
+        \item Si se ha encontrado un agente amigo, insertar una tarea del tipo \texttt{TASK\_GOTO\_POSITION} con prioridad máxima y como destino la posición del agente aliado. Además se ha de modificar el estado del agente a \texttt{standing} para que el agente cambie su objetivo actual por la nueva tarea.
+    \end{itemize}
+    Esto se implementa en \texttt{perform\_look\_action} para que se ejecute siempre que el agente actualize su lista de objetos visibles.
+    \href{https://github.com/kauron/etsinf3/blob/master/AIN/Lab1/jasonAgent_ALLIED_obj4.asl#L146}{\texttt{Código fuente}}
+\end{document}
