@@ -11,23 +11,24 @@ def procesarNoticia(texto):
 	return aux
 
 
-# Treat input and prepare variables
-if (len(sys.argv) != 3):
+# Process arguments
+if len(sys.argv) != 3:
     print("Usage: python SAR_indexer.py news_folder index_file")
     exit(-1)
-
 news_folder = sys.argv[1]
 index_file = sys.argv[2]
 
+# Scan folder for files
 _, _, news_files = next(walk(news_folder), (None, None, []))
 
-delimiter_word = re.compile("[\n\t ]")
-delimiter_text = re.compile("</?TEXT>")
+# Create regex delimiters
+delimiter_word = re.compile("[\n\t ]") # tab, newline or space
+delimiter_text = re.compile("</?TEXT>") # <TEXT> or </TEXT>
 delimiter_noticia = re.compile("</?DOC>")
-delimiter_docid = re.compile("</?DOCID>")
 
+# Basic dict
 indiceInvertido = {}
-newtodocmap = {}
+newid2docid = {}
 docid = 0
 
 # For each file included in the news folder
@@ -35,24 +36,26 @@ while len(news_files) > 0:
 	# Read file
 	data = open(news_folder + "/" + news_files.pop(0)).read()
 	# Split into news
-	news_list = re.split(delimiter_noticia, data)[1:-2]
+	news_list = re.split(delimiter_noticia, data)
 	pos = 0
+	# For each news article in the file
 	for news_text in news_list:
+		# Skip empty strings
 		if news_text in ["", "\n"]: continue
-		noticia = re.split(delimiter_text, news_text)[1]
-		newid = re.split(delimiter_docid, news_text)[1]
-		newtodocmap[newid] = (docid, pos)
-		for word in procesarNoticia(noticia):
+		# Extract body text
+		noticia = re.split(delimiter_text, news_text)[1]		
+		# For each word of the article
+		for word in set(procesarNoticia(noticia)):
 			if word in indiceInvertido:
-				indiceInvertido[word].append(newid)
+				indiceInvertido[word].append((docid, pos))
 			else:
-				indiceInvertido[word] = [newid]
+				indiceInvertido[word] = [(docid, pos)]
 		pos += 1
 	docid += 1
 
 
 # Save data to index file
 import pickle
-obj = [indiceInvertido, newtodocmap]
+obj = [indiceInvertido, newid2docid]
 with open(index_file, "wb") as f:
 	pickle.dump(obj, f)
