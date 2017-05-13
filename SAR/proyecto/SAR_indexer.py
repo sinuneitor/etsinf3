@@ -4,7 +4,7 @@ from os import walk
 
 # Funciones
 def procesarNoticia(texto):
-	texto = re.split(delimiter_word, texto)
+	texto = [w.lower() for w in re.split(delimiter_word, texto)]
 	aux = []
 	for w in texto:
 		aux.append("".join([c for c in w if c.isalpha()]))
@@ -55,4 +55,4 @@ while len(news_files) > 0:
 import pickle
 obj = [indiceInvertido, newtodocmap]
 with open(index_file, "wb") as f:
-	pickle.dump(data, f)
+	pickle.dump(obj, f)
