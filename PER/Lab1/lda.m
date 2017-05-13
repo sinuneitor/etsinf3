@@ -1,9 +1,9 @@
 function [W]=lda(X, xl, k=256)
-    D = rows(X);
-    n = columns(X);
-    m = sum(X')' / columns(X);
+    D = rows(X); # dimensiones
+    n = columns(X); # número de muestras
+    m = sum(X')' / columns(X); # valor medio para cada dimensión
 
-    # Compute Sb and Sw
+    # Cálculo de Sb y Sw
     Sb = zeros(D, D);
     Sw = zeros(D, D);
     for c=unique(xl)
@@ -15,6 +15,7 @@ function [W]=lda(X, xl, k=256)
     endfor
 
     # Encontrar eigenvalues Sb y Sw y devolver los primeros k eigenvectors
+    # ordenados por eigenvalue ascendente
     [V, lambda] = eig(Sb, Sw);
     [eigval, order] = sort(-diag(lambda)');
     W = V(:,order)(:,1:k);
