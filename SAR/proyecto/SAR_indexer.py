@@ -31,7 +31,7 @@ delimiter_text = re.compile("</?TEXT>")  # <TEXT> or </TEXT>
 delimiter_cat  = re.compile("</?CATEGORY>")
 delimiter_title = re.compile("</?TITLE>")
 delimiter_date = re.compile("</?DATE>")
-delimiter_noticia = re.compile("</?DOC>")
+delimiter_noticia = re.compile("<DOC>")
 
 # Basic dict
 indiceInvertido = {}
@@ -50,6 +50,7 @@ while len(news_files) > 0:
     data = open(path).read()
     # Split into news
     news_list = re.split(delimiter_noticia, data)
+    print(len(news_list))
     pos = 0
     # For each news article in the file
     for news_text in news_list:

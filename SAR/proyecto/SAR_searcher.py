@@ -60,7 +60,7 @@ index_file = sys.argv[1]
 with open(index_file, "rb") as f:
     (index, docIndex, titleIndex, catIndex, dateIndex) = pickle.load(f)
 
-delimiter_noticia = re.compile("</?DOC>")
+delimiter_noticia = re.compile("<DOC>")
 delimiter_text = re.compile("</?TEXT>")
 delimiter_title = re.compile("</?TITLE>")
 delimiter_word = re.compile("[\n\t ]")
@@ -78,7 +78,7 @@ while query != '':
     wordlist = query.lower().split()
     res = processQuery(index, wordlist)
     dant = -1
-
+    print(res)
     cont = 0
     for (d,p) in res:
         if(cont>9):
@@ -86,11 +86,14 @@ while query != '':
         if dant != d:
             data = open(docIndex.get(d)).read()
             dant = d
+        print("Fichero " + docIndex.get(d))
         news_list = re.split(delimiter_noticia, data)
         new = news_list[p+1]
         title = re.split(delimiter_title,new)
-        if len (title)>1:
+        #print(title)
+        if len(title)>1:
             print(title[1])
+            cont+=1
         if len(res)<3:
             text = re.split(delimiter_text,new)
             if len (title)>1:
@@ -98,7 +101,7 @@ while query != '':
         elif len(res)<6:
             text = re.split(delimiter_text,new)
             print(snippet(text[1], wordlist))
-        cont+=1
+        
     total_time = time.time() - start_time
     print("%d resultados obtenidos en %.9f segundos" % (len(res), total_time))
 
