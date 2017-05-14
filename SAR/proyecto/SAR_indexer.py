@@ -42,6 +42,7 @@ catIndex = {}
 doc2file = {}
 docid = 0
 
+total = 0
 # For each file included in the news folder
 while len(news_files) > 0:
     # Read file
@@ -50,7 +51,7 @@ while len(news_files) > 0:
     data = open(path).read()
     # Split into news
     news_list = re.split(delimiter_noticia, data)
-    print(len(news_list))
+    total += len(news_list)
     pos = 0
     # For each news article in the file
     for news_text in news_list:
@@ -77,6 +78,8 @@ while len(news_files) > 0:
             addToIndex(titleIndex, word, (docid, pos))
         pos += 1
     docid += 1
+
+print("Se han leído %d archivos conteniendo %d noticias" % (docid, total))
 
 # Save data to index file
 

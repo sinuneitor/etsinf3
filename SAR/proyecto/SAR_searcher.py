@@ -78,7 +78,7 @@ while query != '':
     wordlist = query.lower().split()
     res = processQuery(index, wordlist)
     dant = -1
-    print(res)
+#    print(res)
     cont = 0
     for (d,p) in res:
         if(cont>9):
@@ -101,7 +101,7 @@ while query != '':
         elif len(res)<6:
             text = re.split(delimiter_text,new)
             print(snippet(text[1], wordlist))
-        
+
     total_time = time.time() - start_time
     print("%d resultados obtenidos en %.9f segundos" % (len(res), total_time))
 
