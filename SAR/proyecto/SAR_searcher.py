@@ -1,7 +1,7 @@
 import pickle
 import sys
 
-def processQuery2(index, query):
+def processQuery(index, query):
     pLists = []
     for word in query:
         pLists.append(index.get(word, []))
@@ -28,34 +28,6 @@ def processQuery2(index, query):
                 res.append((d1, p1))
                 x += 1
                 y += 1
-
-
-    return res
-
-def processQuery(index, query):
-    prev = query.pop(0)
-    res = index.get(prev, [])
-    while len(query) != 0:
-        previ = res
-        res = []
-        word = query.pop(0)
-        wordi = index.get(word, [])
-        i = j = 0
-        while i < len(wordi) and j < len(previ):
-            (d1, p1) = wordi[i]
-            (d2, p2) = previ[j]
-            if d1 > d2:
-                j += 1
-            elif d1 < d2:
-                i += 1
-            elif p1 > p2:
-                j += 1
-            elif p1 < p2:
-                i += 1
-            else:
-                res.append((d1, p1))
-                i += 1
-                j += 1
     return res
 
 
@@ -67,14 +39,13 @@ index_file = sys.argv[1]
 
 # Retrieve data from file
 with open(index_file, "rb") as f:
-    index = pickle.load(f)
+    (index, docIndex) = pickle.load(f)
 
-# Infinite query loop (end with EOF or '')
-while True:
-    query = input("Your query > ")
-    if query == '':
-        break
+# Infinite query loop (end with '')
+query = input("Your query > ")
+while query != '':
     wordlist = query.lower().split()
     print(len(processQuery(index, wordlist)))
+    query = input("Your query > ")
 
 print("The program will now end.")

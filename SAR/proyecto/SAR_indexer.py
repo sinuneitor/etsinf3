@@ -2,7 +2,6 @@ import sys
 import re
 from os import walk
 import pickle
-from collections import OrderedDict
 
 
 # Funciones
@@ -31,12 +30,15 @@ delimiter_noticia = re.compile("</?DOC>")
 
 # Basic dict
 indiceInvertido = {}
+docDictionary = {}
 docid = 0
 
 # For each file included in the news folder
 while len(news_files) > 0:
     # Read file
-    data = open(news_folder + "/" + news_files.pop(0)).read()
+    path = news_folder + "/" + news_files.pop(0)
+    docDictionary[docid] = path
+    data = open(path).read()
     # Split into news
     news_list = re.split(delimiter_noticia, data)
     pos = 0
@@ -58,6 +60,6 @@ while len(news_files) > 0:
 
 # Save data to index file
 
-obj = indiceInvertido
+obj = (indiceInvertido, docDictionary)
 with open(index_file, "wb") as f:
     pickle.dump(obj, f)
