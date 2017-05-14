@@ -3,8 +3,11 @@ import sys
 import re
 import time
 from SAR_utils import *
+from nltk.corpus import stopwords
+from nltk.stem import SnowballStemmer
 
 def ANDpostinglist(posting_lists):
+    if (len(posting_lists) == 0): return []
     res = posting_lists.pop(0)
     while len(posting_lists) > 0:
         l1 = res
@@ -28,16 +31,115 @@ def ANDpostinglist(posting_lists):
                 y += 1
     return res
 
+def ORpostinglist(posting_lists):
+    res = []
+    for l2 in posting_lists:
+        l1 = res
+        res = []
+        x = y = 0
+        while x < len(l1) and y < len(l2):
+            (d1, p1) = l1[x]
+            (d2, p2) = l2[y]
+            if d1 == d2:
+                if p1 == p2:
+                    res.append(l1[x])
+                    x += 1
+                    y += 1
+                elif p1 > p2:
+                    res.append(l2[y])
+                    y += 1
+                else:
+                    res.append(l1[x])
+                    x += 1
+            elif d1 > d2:
+                res.append(l2[y])
+                y += 1
+            else:
+                res.append(l1[x])
+                x += 1
+        res.extend(l1[x:])
+        res.extend(l2[y:])
+    return res
+
+def NANDpostinglist(l1, l2):
+    res = []
+    x = y = 0
+    while x < len(l1) and y < len(l2):
+        (d1, p1) = l1[x]
+        (d2, p2) = l2[y]
+        if d1 > d2:
+            y += 1
+        elif d1 < d2:
+            res.append(l1[x])
+            x += 1
+        elif p1 > p2:
+            res.append(l1[x])
+            y += 1
+        elif p1 < p2:
+            x += 1
+        else:
+            x += 1
+            y += 1
+    return res
+
+
+
 def processQuery(index, query):
     # Get all posting lists for each word of the query
-    pLists = [index.get(word, []) for word in query]
+    if stemming:
+        pLists = []
+        for word in query:
+            aux = [index.get(w, []) for w in stems.get(stemmer.stem(word), [])]
+            pLists.append(ORpostinglist(aux))
+    else:
+        pLists = [index.get(word, []) for word in query]
+
     # Sort posting lists by size (smallest first)
     pLists = sorted(pLists, key=len)
     # Compare all lists, 2 by 2 from smallest to largest
     # using the basic algorithm from theory
     return ANDpostinglist(pLists)
 
-#def processBinaryQuery(index, query):
+def performBinaryOP(list1, list2, op):
+    if op == None:
+        return list2
+    elif op == "AND":
+        return ANDpostinglist([list1, list2])
+    elif op == "OR":
+        return ORpostinglist([list1, list2])
+    elif op == "NAND":
+        return NANDpostinglist(list1, list2)
+    elif op == "NOR":
+        return ORpostinglist([list1, NOTpostinglist(list2)])
+    elif op == "NOT":
+        return NANDpostinglist(universe, list2)
+
+def processBinaryQuery(index, query):
+    res = []
+    words = []
+    op = None
+    for w in query:
+        if w == "NOT":
+            if op == None:
+                if words != []:
+                    op = "NAND"
+                    res = performBinaryOP(res, processQuery(index, words), "AND")
+                    words = []
+                else:
+                    op = "NOT"
+            elif op == "AND" or op == "NOT":
+                op = "NAND"
+            elif op == "OR":
+                op = "NOR"
+        elif w == "OR" or w == "AND":
+            processed_words = processQuery(index, words)
+            words = []
+            res = performBinaryOP(res, processed_words, op)
+            op = w
+        else:
+            words.append(w.lower())
+    processed_words = processQuery(index, words)
+    return performBinaryOP(res, processed_words, op)
 
 
 def snippet(text, wordlist):
@@ -53,26 +155,53 @@ def snippet(text, wordlist):
             snippet = snippet + "...\n"
     return snippet
 
+no_stopwords = False
+stemming = False
+
 # Process arguments
 if len(sys.argv) < 2:
-    print("Usage: python SAR_searcher.py index_file")
+    print("Usage: python SAR_searcher.py [OPTIONS] index_file")
+    print("Options:\n\t--no-stopwords OR -n\tRemove all stopwords\n" +
+          "\t--stemming OR -s\tLeave only the stem of the words")
     exit(-1)
-index_file = sys.argv[1]
+for arg in sys.argv:
+    if arg[0] == "-":
+        if len(arg) > 1 and arg[1] == "-":
+            # It's a long parameter
+            if arg == "--no-stopwords":
+                no_stopwords = True
+            elif arg == "--stemming":
+                stemming = True
+        else:
+            # It's a single letter option, scan all letters
+            for c in arg:
+                if c == "n":
+                    no_stopwords = True
+                elif c == "s":
+                    stemming = True
+    else:
+        # Not an option, the last nonoption must be the filename
+        index_file = arg
 
 # Retrieve data from file
 with open(index_file, "rb") as f:
-    (index, docIndex, titleIndex, catIndex, dateIndex) = pickle.load(f)
+    (index, docIndex, titleIndex, catIndex, dateIndex, universe, stems) = pickle.load(f)
 
 # Infinite query loop (end with '')
 print("TIP: you can write " + color.BOLD + "!!" + color.END + " to insert your previous query")
 prev = ""
+stemmer = SnowballStemmer('spanish')
 query = input("Your query > ")
 while query != '':
     start_time = time.time()
     query = query.replace("!!", prev)
     prev = query
-    wordlist = query.lower().split()
-    res = processQuery(index, wordlist)
+    if no_stopwords:
+        wordlist = [w for w in query.split() if w.lower() not in stopwords.words('spanish')]
+    else:
+        wordlist = query.split()
+    res = processBinaryQuery(index, wordlist)
+    wordlist = [w.lower() for w in wordlist if w not in ["AND", "OR", "NOT"]]
     dant = -1
 #    print(res)
     cont = 0

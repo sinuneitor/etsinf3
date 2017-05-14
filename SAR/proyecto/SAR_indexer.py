@@ -3,12 +3,12 @@ import re
 from os import walk
 import pickle
 from SAR_utils import *
+from nltk.stem import SnowballStemmer
 
 def addToIndex(index, key, element):
     aux = index.get(key, [])
     aux.append(element)
     index[key] = aux
-
 
 # Process arguments
 if len(sys.argv) != 3:
@@ -20,8 +20,6 @@ index_file = sys.argv[2]
 # Scan folder for files
 _, _, news_files = next(walk(news_folder), (None, None, []))
 
-# Create regex delimiters
-
 # Basic dict
 indiceInvertido = {}
 titleIndex = {}
@@ -29,8 +27,11 @@ dateIndex = {}
 catIndex = {}
 
 doc2file = {}
+allnewsid = []
+stems = {}
 docid = 0
 
+stemmer = SnowballStemmer('spanish')
 total = 0
 # For each file included in the news folder
 while len(news_files) > 0:
@@ -53,6 +54,10 @@ while len(news_files) > 0:
         palabras = procesarNoticia(noticia);
         # For each word of the article
         for word in set(palabras):
+            st_word = stemmer.stem(word)
+            stemset = stems.get(st_word, set())
+            stemset.add(word)
+            stems[st_word] = stemset
             addToIndex(indiceInvertido, word, (docid, pos))
         # Process category
         categoria = re.split(delimiter_cat, news_text)[1]
@@ -65,6 +70,7 @@ while len(news_files) > 0:
         title = re.split(delimiter_title, news_text)[1]
         for word in set(procesarNoticia(title)):
             addToIndex(titleIndex, word, (docid, pos))
+        allnewsid.append((docid, pos))
         pos += 1
     docid += 1
 
@@ -72,6 +78,6 @@ print("Se han leído %d archivos conteniendo %d noticias" % (docid, total))
 
 # Save data to index file
 
-obj = (indiceInvertido, doc2file, titleIndex, catIndex, dateIndex)
+obj = (indiceInvertido, doc2file, titleIndex, catIndex, dateIndex, allnewsid, stems)
 with open(index_file, "wb") as f:
     pickle.dump(obj, f)
