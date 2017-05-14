@@ -3,11 +3,12 @@ import sys
 import re
 
 def processQuery(index, query):
-    pLists = []
-    for word in query:
-        pLists.append(index.get(word, []))
-
+    # Get all posting lists for each word of the query
+    pLists = [index.get(word, []) for word in query]
+    # Sort posting lists by size (smallest first)
     pLists = sorted(pLists, key=len)
+    # Compare all lists, 2 by 2 from smallest to largest
+    # using the basic algorithm from theory
     res = pLists.pop(0)
     while len(pLists) > 0:
         l1 = res
@@ -49,20 +50,21 @@ def snippet(text, wordlist):
     return snippet
 
 # Process arguments
-if len(sys.argv) != 2:
+if len(sys.argv) < 2:
     print("Usage: python SAR_searcher.py index_file")
     exit(-1)
 index_file = sys.argv[1]
 
 # Retrieve data from file
 with open(index_file, "rb") as f:
-    (index, docIndex) = pickle.load(f)
+    (index, docIndex, titleIndex, catIndex, dateIndex) = pickle.load(f)
 
-
-delimiter_noticia = re.compile("<DOC>")
+delimiter_noticia = re.compile("</?DOC>")
 delimiter_text = re.compile("</?TEXT>")
 delimiter_title = re.compile("</?TITLE>")
 delimiter_word = re.compile("[\n\t ]")
+delimiter_cat = re.compile("</?CATEGORY>")
+delimiter_date = re.compile("</?DATE>")
 
 # Infinite query loop (end with '')
 print("TIP: you can write !! to insert your previous query")
