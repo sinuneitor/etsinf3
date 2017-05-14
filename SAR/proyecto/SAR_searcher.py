@@ -2,30 +2,13 @@ import pickle
 import sys
 import re
 import time
+from SAR_utils import *
 
-class color:
-    PURPLE    = "\033[95m"
-    CYAN      = "\033[96m"
-    DARKCYAN  = "\033[36m"
-    BLUE      = "\033[94m"
-    GREEN     = "\033[92m"
-    YELLOW    = "\033[93m"
-    RED       = "\033[91m"
-    BOLD      = "\033[1m"
-    UNDERLINE = "\033[4m"
-    END       = "\033[0m"
-
-def processQuery(index, query):
-    # Get all posting lists for each word of the query
-    pLists = [index.get(word, []) for word in query]
-    # Sort posting lists by size (smallest first)
-    pLists = sorted(pLists, key=len)
-    # Compare all lists, 2 by 2 from smallest to largest
-    # using the basic algorithm from theory
-    res = pLists.pop(0)
-    while len(pLists) > 0:
+def ANDpostinglist(posting_lists):
+    res = posting_lists.pop(0)
+    while len(posting_lists) > 0:
         l1 = res
-        l2 = pLists.pop(0)
+        l2 = posting_lists.pop(0)
         res = []
         x = y = 0
         while x < len(l1) and y < len(l2):
@@ -45,9 +28,17 @@ def processQuery(index, query):
                 y += 1
     return res
 
-def procesarNoticia(texto):
-    texto = "".join([c if c.isalpha() else " " for c in texto])
-    return [w.lower() for w in re.split(delimiter_word, texto)]
+def processQuery(index, query):
+    # Get all posting lists for each word of the query
+    pLists = [index.get(word, []) for word in query]
+    # Sort posting lists by size (smallest first)
+    pLists = sorted(pLists, key=len)
+    # Compare all lists, 2 by 2 from smallest to largest
+    # using the basic algorithm from theory
+    return ANDpostinglist(pLists)
+
+#def processBinaryQuery(index, query):
+
 
 def snippet(text, wordlist):
     words = procesarNoticia(text);
@@ -71,13 +62,6 @@ index_file = sys.argv[1]
 # Retrieve data from file
 with open(index_file, "rb") as f:
     (index, docIndex, titleIndex, catIndex, dateIndex) = pickle.load(f)
-
-delimiter_noticia = re.compile("<DOC>")
-delimiter_text = re.compile("</?TEXT>")
-delimiter_title = re.compile("</?TITLE>")
-delimiter_word = re.compile("[\n\t ]")
-delimiter_cat = re.compile("</?CATEGORY>")
-delimiter_date = re.compile("</?DATE>")
 
 # Infinite query loop (end with '')
 print("TIP: you can write " + color.BOLD + "!!" + color.END + " to insert your previous query")
@@ -107,11 +91,16 @@ while query != '':
             print(title[1])
             cont+=1
         if len(res)<3:
-            text = re.split(delimiter_text,new)
+            text = re.split(delimiter_text,new)[1]
+            for word in wordlist:
+                text = re.sub(word, color.UNDERLINE + word + color.END, text, flags=re.IGNORECASE)
             if len (title)>1:
-                print(text[1])
+                print(text)
         elif len(res)<6:
             text = re.split(delimiter_text,new)
+            toprint = snippet(text[1], wordlist)
+            for word in wordlist:
+                toprint = re.sub(word, color.UNDERLINE + word + color.END, toprint, flags=re.IGNORECASE)
             print(snippet(text[1], wordlist))
 
     total_time = time.time() - start_time

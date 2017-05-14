@@ -2,12 +2,7 @@ import sys
 import re
 from os import walk
 import pickle
-
-
-# Funciones
-def procesarTexto(texto):
-    texto = "".join([c if c.isalpha() else " " for c in texto])
-    return [w.lower() for w in re.split(delimiter_word, texto)]
+from SAR_utils import *
 
 def addToIndex(index, key, element):
     aux = index.get(key, [])
@@ -26,12 +21,6 @@ index_file = sys.argv[2]
 _, _, news_files = next(walk(news_folder), (None, None, []))
 
 # Create regex delimiters
-delimiter_word = re.compile("[\n\t ]")  # tab, newline or space
-delimiter_text = re.compile("</?TEXT>")  # <TEXT> or </TEXT>
-delimiter_cat  = re.compile("</?CATEGORY>")
-delimiter_title = re.compile("</?TITLE>")
-delimiter_date = re.compile("</?DATE>")
-delimiter_noticia = re.compile("<DOC>")
 
 # Basic dict
 indiceInvertido = {}
@@ -61,20 +50,20 @@ while len(news_files) > 0:
         # Extract body text
         noticia = re.split(delimiter_text, news_text)[1]
         # Process text
-        palabras = procesarTexto(noticia);
+        palabras = procesarNoticia(noticia);
         # For each word of the article
         for word in set(palabras):
             addToIndex(indiceInvertido, word, (docid, pos))
         # Process category
         categoria = re.split(delimiter_cat, news_text)[1]
-        for word in set(procesarTexto(categoria)):
+        for word in set(procesarNoticia(categoria)):
             addToIndex(catIndex, word, (docid, pos))
         # Process date
         date = re.split(delimiter_date, news_text)[1]
         addToIndex(dateIndex, word, (docid, pos))
         # Process title
         title = re.split(delimiter_title, news_text)[1]
-        for word in set(procesarTexto(title)):
+        for word in set(procesarNoticia(title)):
             addToIndex(titleIndex, word, (docid, pos))
         pos += 1
     docid += 1
