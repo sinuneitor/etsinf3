@@ -6,11 +6,8 @@ import pickle
 
 # Funciones
 def procesarNoticia(texto):
-    texto = [w.lower() for w in re.split(delimiter_word, texto)]
-    aux = []
-    for w in texto:
-        aux.append("".join([c if c.isalpha() else " " for c in w]))
-    return aux
+    texto = "".join([c if c.isalpha() else " " for c in texto])
+    return [w.lower() for w in re.split(delimiter_word, texto)]
 
 
 # Process arguments
@@ -49,8 +46,10 @@ while len(news_files) > 0:
             continue
         # Extract body text
         noticia = re.split(delimiter_text, news_text)[1]
+        # Process text
+        palabras = procesarNoticia(noticia);
         # For each word of the article
-        for word in set(procesarNoticia(noticia)):
+        for word in set(palabras):
             if word in indiceInvertido:
                 indiceInvertido[word].append((docid, pos))
             else:
