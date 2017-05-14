@@ -1,6 +1,7 @@
 import pickle
 import sys
 import re
+import time
 
 def processQuery(index, query):
     # Get all posting lists for each word of the query
@@ -71,6 +72,7 @@ print("TIP: you can write !! to insert your previous query")
 prev = ""
 query = input("Your query > ")
 while query != '':
+    start_time = time.time()
     query = query.replace("!!", prev)
     prev = query
     wordlist = query.lower().split()
@@ -97,6 +99,8 @@ while query != '':
             text = re.split(delimiter_text,new)
             print(snippet(text[1], wordlist))
         cont+=1
+    total_time = time.time() - start_time
+    print("%d resultados obtenidos en %.9f segundos" % (len(res), total_time))
 
     query = input("Your query > ")
 
