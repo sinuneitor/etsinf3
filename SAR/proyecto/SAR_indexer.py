@@ -50,10 +50,9 @@ while len(news_files) > 0:
         palabras = procesarNoticia(noticia);
         # For each word of the article
         for word in set(palabras):
-            if word in indiceInvertido:
-                indiceInvertido[word].append((docid, pos))
-            else:
-                indiceInvertido[word] = [(docid, pos)]
+            aux = indiceInvertido.get(word, [])
+            aux.append((docid, pos))
+            indiceInvertido[word] = aux
         pos += 1
     docid += 1
 
