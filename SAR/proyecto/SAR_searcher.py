@@ -42,8 +42,12 @@ with open(index_file, "rb") as f:
     (index, docIndex) = pickle.load(f)
 
 # Infinite query loop (end with '')
+print("TIP: you can write !! to insert your previous query")
+prev = ""
 query = input("Your query > ")
 while query != '':
+    query = query.replace("!!", prev)
+    prev = query
     wordlist = query.lower().split()
     print(len(processQuery(index, wordlist)))
     query = input("Your query > ")
