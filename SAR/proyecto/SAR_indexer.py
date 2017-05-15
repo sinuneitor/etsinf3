@@ -4,6 +4,7 @@ from os import walk
 import pickle
 from SAR_utils import *
 from nltk.stem import SnowballStemmer
+import time
 
 def addToIndex(index, key, element):
     aux = index.get(key, [])
@@ -34,6 +35,7 @@ docid = 0
 
 stemmer = SnowballStemmer('spanish')
 total = 0
+start_time = time.time()
 # For each file included in the news folder
 while len(news_files) > 0:
     # Read file
@@ -42,7 +44,6 @@ while len(news_files) > 0:
     data = open(path).read()
     # Split into news
     news_list = re.split(delimiter_noticia, data)
-    total += len(news_list)
     pos = 0
     # For each news article in the file
     for news_text in news_list:
@@ -59,7 +60,7 @@ while len(news_files) > 0:
             stemset = stems.get(st_word, set())
             stemset.add(word)
             stems[st_word] = stemset
-            if word not in indiceInverti:
+            if word not in indiceInvertido:
                 permWord = list(word)
                 permWord.append("$")
                 for i in range(len(permWord)):
@@ -78,9 +79,11 @@ while len(news_files) > 0:
             addToIndex(titleIndex, word, (docid, pos))
         allnewsid.append((docid, pos))
         pos += 1
+        total += 1
     docid += 1
 
-print("Se han leído %d archivos conteniendo %d noticias" % (docid, total))
+duration = time.time() - start_time
+print("Se han leído %d archivos conteniendo %d noticias en %.9s" % (docid, total, duration))
 
 # Save data to index file
 
