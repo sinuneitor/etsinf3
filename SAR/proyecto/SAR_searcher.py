@@ -213,12 +213,18 @@ for arg in sys.argv:
         # Not an option, the last nonoption must be the filename
         index_file = arg
 
+print("Iniciando búsqueda interactiva en", index_file, "sin" if no_stopwords else "con", "stopwords y ",
+      "con" if stemming else "sin", "stemming")
+
 # Retrieve data from file
 with open(index_file, "rb") as f:
     (index, docIndex, titleIndex, catIndex, dateIndex, universe, stems, permuterm) = pickle.load(f)
+    f.close()
 
 # Infinite query loop (end with '')
-print("TIP: you can write " + color.BOLD + "!!" + color.END + " to insert your previous query")
+print("Puedes emplear operadores binarios (AND, OR y NOT), búsqueda en campos (headline:, date: y category:).",
+      "También puedes emplear comodines ('*' para múltiples caracteres y '?' para uno solo) para buscar con tolerancia.",
+      "Por último, puedes emplear !! para denotar tu búsqueda anterior")
 prev = ""
 stemmer = SnowballStemmer('spanish')
 query = input("Your query > ")
@@ -280,6 +286,6 @@ while query != '':
     total_time = time.time() - start_time
     print((color.BOLD + "%d resultados" + color.END + " obtenidos en %.9f segundos") % (len(res), total_time))
 
-    query = input("Your query > ")
+    query = input("Tu búsqueda > ")
 
-print("The program will now end.")
+print("El programa se está cerrando...")
