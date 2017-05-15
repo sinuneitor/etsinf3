@@ -29,6 +29,7 @@ catIndex = {}
 doc2file = {}
 allnewsid = []
 stems = {}
+permuterm = Trie()
 docid = 0
 
 stemmer = SnowballStemmer('spanish')
@@ -57,7 +58,12 @@ while len(news_files) > 0:
             st_word = stemmer.stem(word)
             stemset = stems.get(st_word, set())
             stemset.add(word)
-            stems[st_word] = stemset
+            if len(stemset) == 1:
+                stems[st_word] = stemset
+                permWord = list(word)
+                permWord.append("$")
+                for i in range(len(permWord)):
+                    permuterm.add(permWord[i:] + permWord[:i])
             addToIndex(indiceInvertido, word, (docid, pos))
         # Process category
         categoria = re.split(delimiter_cat, news_text)[1]
@@ -65,7 +71,7 @@ while len(news_files) > 0:
             addToIndex(catIndex, word, (docid, pos))
         # Process date
         date = re.split(delimiter_date, news_text)[1]
-        addToIndex(dateIndex, word, (docid, pos))
+        addToIndex(dateIndex, date, (docid, pos))
         # Process title
         title = re.split(delimiter_title, news_text)[1]
         for word in set(procesarNoticia(title)):
@@ -78,6 +84,6 @@ print("Se han leído %d archivos conteniendo %d noticias" % (docid, total))
 
 # Save data to index file
 
-obj = (indiceInvertido, doc2file, titleIndex, catIndex, dateIndex, allnewsid, stems)
+obj = (indiceInvertido, doc2file, titleIndex, catIndex, dateIndex, allnewsid, stems, permuterm)
 with open(index_file, "wb") as f:
     pickle.dump(obj, f)
