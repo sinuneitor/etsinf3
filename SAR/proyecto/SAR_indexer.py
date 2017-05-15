@@ -58,8 +58,8 @@ while len(news_files) > 0:
             st_word = stemmer.stem(word)
             stemset = stems.get(st_word, set())
             stemset.add(word)
-            if len(stemset) == 1:
-                stems[st_word] = stemset
+            stems[st_word] = stemset
+            if word not in indiceInverti:
                 permWord = list(word)
                 permWord.append("$")
                 for i in range(len(permWord)):
