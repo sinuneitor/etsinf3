@@ -63,7 +63,7 @@ while len(news_files) > 0:
             if word not in indiceInvertido:
                 permWord = list(word)
                 permWord.append("$")
-                for i in range(len(permWord)):
+                for i in range(1, len(permWord)):
                     permuterm.add(permWord[i:] + permWord[:i])
             addToIndex(indiceInvertido, word, (docid, pos))
         # Process category
