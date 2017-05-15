@@ -6,12 +6,33 @@ from SAR_utils import *
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
 
+def compareT(a, b):
+    (d1, p1) = a
+    (d2, p2) = b
+    if d1 == d2:
+        return p1 - p2
+    else:
+        return d1 - d2
 
+
+# Obtain posting list of a word
+# If an index i is not specified it will match : patterns and develop stemming
 def getPList(word, i=None):
     if i != None:
         return i.get(word, [])
 
-    if "*" in word or "?" in word:
+
+    if ":" in word:
+        [where, word] = word.split(":")
+        if where == "headline":
+            i = titleIndex
+        elif where == "date":
+            i = dateIndex
+        elif where == "category":
+            i = catIndex
+        else:
+            return []
+    elif "*" in word or "?" in word:
         if "*" in word:
             symbol = "*"
         elif "?" in word:
@@ -24,27 +45,12 @@ def getPList(word, i=None):
             aux.append(p + s)
         words = aux
         return ORpostinglist([getPList(x, i=index) for x in words])
-
-    if ":" in word:
-        [where, word] = word.split(":")
-        if where == "headline":
-            i = titleIndex
-        elif where == "date":
-            i = dateIndex
-        elif where == "category":
-            i = catIndex
-        else:
-            return []
     else:
         i = index
-
-    if no_stopwords and word in stopwords.words('spanish'):
-        return []
-    if stemming:
-        aux = [getPList(w, i=i) for w in stems.get(stemmer.stem(word), [])]
-        return ORpostinglist(aux)
-    else:
-        return getPList(word, i=i)
+        if stemming:
+            aux = [getPList(w, i=i) for w in stems.get(stemmer.stem(word), [])]
+            return ORpostinglist(aux)
+    return getPList(word, i=i)
 
 def ANDpostinglist(posting_lists):
     if (len(posting_lists) == 0): return []
@@ -55,18 +61,13 @@ def ANDpostinglist(posting_lists):
         res = []
         x = y = 0
         while x < len(l1) and y < len(l2):
-            (d1, p1) = l1[x]
-            (d2, p2) = l2[y]
-            if d1 > d2:
+            diff = compareT(l1[x], l2[y])
+            if diff > 0:
                 y += 1
-            elif d1 < d2:
-                x += 1
-            elif p1 > p2:
-                y += 1
-            elif p1 < p2:
+            elif diff < 0:
                 x += 1
             else:
-                res.append((d1, p1))
+                res.append(l1[x])
                 x += 1
                 y += 1
     return res
@@ -78,20 +79,12 @@ def ORpostinglist(posting_lists):
         res = []
         x = y = 0
         while x < len(l1) and y < len(l2):
-            (d1, p1) = l1[x]
-            (d2, p2) = l2[y]
-            if d1 == d2:
-                if p1 == p2:
-                    res.append(l1[x])
-                    x += 1
-                    y += 1
-                elif p1 > p2:
-                    res.append(l2[y])
-                    y += 1
-                else:
-                    res.append(l1[x])
-                    x += 1
-            elif d1 > d2:
+            diff = compareT(l1[x], l2[y])
+            if diff == 0:
+                res.append(l1[x])
+                x += 1
+                y += 1
+            elif diff > 0:
                 res.append(l2[y])
                 y += 1
             else:
@@ -105,16 +98,10 @@ def NANDpostinglist(l1, l2):
     res = []
     x = y = 0
     while x < len(l1) and y < len(l2):
-        (d1, p1) = l1[x]
-        (d2, p2) = l2[y]
-        if d1 > d2:
+        diff = compareT(l1[x], l2[y])
+        if diff > 0:
             y += 1
-        elif d1 < d2:
-            res.append(l1[x])
-            x += 1
-        elif p1 > p2:
-            y += 1
-        elif p1 < p2:
+        elif diff < 0:
             res.append(l1[x])
             x += 1
         else:
@@ -124,12 +111,14 @@ def NANDpostinglist(l1, l2):
     return res
 
 
-
+# Get posting list for each word in query
 def processQuery(query):
     pLists = [getPList(word) for word in query]
-    pLists = sorted(pLists, key=len)
-    return ANDpostinglist(pLists)
+    # Before ANDing the lists, sort them by ascending length
+    return ANDpostinglist(sorted(pLists, key=len))
 
+
+# Perform a binary operation between two posting lists
 def performBinaryOP(list1, list2, op):
     if op == None:
         return list2
@@ -144,10 +133,13 @@ def performBinaryOP(list1, list2, op):
     elif op == "NOT":
         return NANDpostinglist(universe, list2)
 
+
+# Process query that includes OR, AND or NOT operators
 def processBinaryQuery(query):
-    res = []
-    words = []
-    op = None
+    res = []   # Posting list
+    words = [] # Words processed but not queried
+    op = None  # Operation processed but not queried
+
     for w in query:
         if w == "NOT":
             if len(words) != 0:
@@ -168,52 +160,68 @@ def processBinaryQuery(query):
             op = w
         else:
             words.append(w.lower())
-    processed_words = processQuery(words)
-    return performBinaryOP(res, processed_words, op)
+    return performBinaryOP(res, processQuery(words), op)
 
 
-def snippet(text, wordlist):
-    words = procesarNoticia(text);
-    #words = re.split(delimiter_word,text)
+def snippet(text, query):
+    words = procesarNoticia(text)
     snippet = ""
-    for i in range(0,len(words)):
-        word = words[i]
-        if word in wordlist:
-            snippet = snippet + "..."
-            for j in range(max(0,i-3),min(len(words),i+4)):
-                snippet = snippet + words[j] + " "
-            snippet = snippet + "...\n"
+    # Check each word of the article
+    for i in range(0, len(words)):
+        if words[i] in query:
+            # Add that word and some context if the word is in the query
+            snippet += "..." + " ".join(words[max(0, i - 3):min(len(words), i + 4)]) + "...\n"
     return snippet
 
-no_stopwords = False
-stemming = False
-
-# Process arguments
-if len(sys.argv) < 2:
+def printHelp():
     print("Usage: python SAR_searcher.py [OPTIONS] index_file")
     print("Options:\n\t--no-stopwords OR -n\tRemove all stopwords\n" +
           "\t--stemming OR -s\tLeave only the stem of the words")
-    exit(-1)
+
+
+# Default settings
+no_stopwords = False
+stemming = False
+
+# Check for help command or few arguments
+if len(sys.argv) < 2 or "--help" in sys.argv or "-h" in sys.argv:
+    printHelp()
+    if len(sys.argv) < 2:
+        sys.exit(-1)
+    else:
+        sys.exit()
+
+# Process optiosn and index filename
+index_file = None
 for arg in sys.argv:
     if arg[0] == "-":
+        # Option
         if len(arg) > 1 and arg[1] == "-":
-            # It's a long parameter
+            # Long option
             if arg == "--no-stopwords":
                 no_stopwords = True
             elif arg == "--stemming":
                 stemming = True
         else:
-            # It's a single letter option, scan all letters
+            # Short option, check for multiple short options in one arg
             for c in arg:
                 if c == "n":
                     no_stopwords = True
                 elif c == "s":
                     stemming = True
     else:
-        # Not an option, the last nonoption must be the filename
-        index_file = arg
+        # Not an option, the second nonoption must be the filename
+        if index_file == None:
+            index_file = 0
+        elif index_file == 0:
+            index_file = arg
 
-print("Iniciando búsqueda interactiva en", index_file, "sin" if no_stopwords else "con", "stopwords y ",
+# There is a change that the user didn't input the filename, only options
+if type(index_file) != str:
+    printHelp()
+    sys.exit(-1)
+
+print("Iniciando búsqueda interactiva en", index_file, "sin" if no_stopwords else "con", "stopwords y",
       "con" if stemming else "sin", "stemming")
 
 # Retrieve data from file
@@ -221,71 +229,85 @@ with open(index_file, "rb") as f:
     (index, docIndex, titleIndex, catIndex, dateIndex, universe, stems, permuterm) = pickle.load(f)
     f.close()
 
-# Infinite query loop (end with '')
-print("Puedes emplear operadores binarios (AND, OR y NOT), búsqueda en campos (headline:, date: y category:).",
-      "También puedes emplear comodines ('*' para múltiples caracteres y '?' para uno solo) para buscar con tolerancia.",
-      "Por último, puedes emplear !! para denotar tu búsqueda anterior")
+print("Puedes emplear operadores binarios (AND, OR y NOT), búsqueda en campos (headline:, date: y category:).")
+print("También puedes emplear comodines ('*' para múltiples caracteres y '?' para uno solo) para buscar con tolerancia.")
+print("Por último, puedes emplear !! para denotar tu búsqueda anterior\n")
+
+# Prepare variables
 prev = ""
 stemmer = SnowballStemmer('spanish')
-query = input("Your query > ")
+# Infinite query loop (end with '')
+query = input("Tu búsqueda > ")
 while query != '':
     start_time = time.time()
+
+    # !! feature
     query = query.replace("!!", prev)
     prev = query
-    wordlist = query.split()
-    res = processBinaryQuery(wordlist)
-    wordlist = [w.lower() for w in wordlist if w not in ["AND", "OR", "NOT"]]
-    if stemming:
-        aux = []
-        for word in wordlist:
-            if ":" in word:
-                (header, term) = word.split(":")
-                aux.extend([header + ":" + x for x in stems.get(stemmer.stem(term), [])])
-            else:
-                aux.extend(stems.get(stemmer.stem(word), []))
-        wordlist = aux
 
-    if no_stopwords:
+    # Treat query and obtain posting list of the result
+    wordlist = query.split()
+    if no_stopwords: # Remove spanish stopwords including *:stopword
         aux = []
         for word in wordlist:
             term = word
             if ":" in word:
-                (_, term) = word.split(":")
-            if term not in stopwords.words('spanish'):
+                _, term = word.split(":")
+            if term.lower() not in stopwords.words('spanish'):
                 aux.append(word)
-    dant = -1
-#    print(res)
-    cont = 0
+        wordlist = aux
+    res = processBinaryQuery(wordlist)
+
+    # The query will be used to underline the words in the full text results
+    # Stem query words, remove boolean operators and *:* operators
+    wordlist = [w.lower() for w in wordlist if w not in ["AND", "OR", "NOT"] and ":" not in w]
+    if stemming:
+        aux = []
+        for word in wordlist:
+            aux.extend(stems.get(stemmer.stem(word), []))
+        wordlist = aux
+
+    # Print results
+    #     1-2: print the whole article
+    #     3-5: snippets
+    #     5+ : print first 10 headlines
+    dant = -1 # Previous document id
+    cont = 0  # Amount of articles printed
     for (d,p) in res:
+        # Print only the first 10 results
         if(cont>9):
-            continue
+            break
+        # If the docid changes, load the new file
         if dant != d:
             data = open(docIndex.get(d)).read()
             dant = d
+        # Print the file in which the article is located
         print("Fichero " + docIndex.get(d))
-        news_list = re.split(delimiter_noticia, data)
-        new = news_list[p+1]
-        title = re.split(delimiter_title,new)
-        #print(title)
-        if len(title)>1:
-            print(title[1])
-            cont+=1
-        if len(res)<3:
-            text = re.split(delimiter_text,new)[1]
+        # Obtain article and print title
+        article = re.split(delimiter_noticia, data)[p + 1]
+        print(re.split(delimiter_title, article)[1])
+        cont += 1
+        if len(res) <= 2:
+            # Print whole article
+            text = re.split(delimiter_text, article)[1]
+            # Underline the words from the query
             for word in wordlist:
                 text = re.sub(word, color.UNDERLINE + word + color.END, text, flags=re.IGNORECASE)
-            if len (title)>1:
-                print(text)
-        elif len(res)<6:
-            text = re.split(delimiter_text,new)
-            toprint = snippet(text[1], wordlist)
+            print(text)
+        elif len(res) <= 5:
+            # Print snippets
+            toprint = snippet(re.split(delimiter_text, article)[1], wordlist)
+            # Underline the words from the query
             for word in wordlist:
-                toprint = re.sub(word, color.UNDERLINE + word + color.END, toprint, flags=re.IGNORECASE)
-            print(snippet(text[1], wordlist))
+                word = re.sub(word, color.UNDERLINE + word + color.END, word, flags=re.IGNORECASE)
+            print(toprint)
 
+    # Print number of results and timing
     total_time = time.time() - start_time
     print((color.BOLD + "%d resultados" + color.END + " obtenidos en %.9f segundos") % (len(res), total_time))
 
+    # Continue loop
     query = input("Tu búsqueda > ")
 
+# Display exit message to notify the user while the main memory is cleared
 print("El programa se está cerrando...")
