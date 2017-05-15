@@ -24,15 +24,18 @@ def getPList(word, i=None):
 
     if ":" in word:
         [where, word] = word.split(":")
-        if where == "headline":
+        if where == "headline" or where == "h":
             i = titleIndex
-        elif where == "date":
+        elif where == "date" or where == "d":
             i = dateIndex
-        elif where == "category":
+        elif where == "category" or where == "c":
             i = catIndex
         else:
             return []
-    elif "*" in word or "?" in word:
+    else:
+        i = index
+
+    if "*" in word or "?" in word:
         if "*" in word:
             symbol = "*"
         elif "?" in word:
@@ -44,13 +47,12 @@ def getPList(word, i=None):
             s, p = e.split("$")
             aux.append(p + s)
         words = aux
-        return ORpostinglist([getPList(x, i=index) for x in words])
+        return ORpostinglist([getPList(x, i=i) for x in words])
+    elif stemming:
+        aux = [getPList(w, i=i) for w in stems.get(stemmer.stem(word), [])]
+        return ORpostinglist(aux)
     else:
-        i = index
-        if stemming:
-            aux = [getPList(w, i=i) for w in stems.get(stemmer.stem(word), [])]
-            return ORpostinglist(aux)
-    return getPList(word, i=i)
+        return getPList(word, i=i)
 
 def ANDpostinglist(posting_lists):
     if (len(posting_lists) == 0): return []
@@ -223,21 +225,22 @@ if type(index_file) != str:
 
 print("Iniciando búsqueda interactiva en", index_file, "sin" if no_stopwords else "con", "stopwords y",
       "con" if stemming else "sin", "stemming")
+print("Puedes emplear operadores binarios (AND, OR y NOT), búsqueda en campos (headline:, date: y category:).")
+print("También puedes emplear comodines ('*' para múltiples caracteres y '?' para uno solo) para buscar con tolerancia.")
+print("Por último, puedes emplear !! para denotar tu búsqueda anterior\n")
 
 # Retrieve data from file
 with open(index_file, "rb") as f:
     (index, docIndex, titleIndex, catIndex, dateIndex, universe, stems, permuterm) = pickle.load(f)
     f.close()
 
-print("Puedes emplear operadores binarios (AND, OR y NOT), búsqueda en campos (headline:, date: y category:).")
-print("También puedes emplear comodines ('*' para múltiples caracteres y '?' para uno solo) para buscar con tolerancia.")
-print("Por último, puedes emplear !! para denotar tu búsqueda anterior\n")
 
 # Prepare variables
 prev = ""
 stemmer = SnowballStemmer('spanish')
 # Infinite query loop (end with '')
-query = input("Tu búsqueda > ")
+prompt = ("Tu búsqueda " + color.RED + ">" + color.END + " ")
+query = input(prompt)
 while query != '':
     start_time = time.time()
 
@@ -307,7 +310,7 @@ while query != '':
     print((color.BOLD + "%d resultados" + color.END + " obtenidos en %.9f segundos") % (len(res), total_time))
 
     # Continue loop
-    query = input("Tu búsqueda > ")
+    query = input(prompt)
 
 # Display exit message to notify the user while the main memory is cleared
 print("El programa se está cerrando...")
