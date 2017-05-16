@@ -11,6 +11,13 @@ def addToIndex(index, key, element):
     aux.append(element)
     index[key] = aux
 
+def addToPerm(word):
+    permWord = list(word)
+    permWord.append("$")
+    for i in range(1, len(permWord)):
+        permuterm.add(permWord[i:] + permWord[:i])
+
+
 # Process arguments
 if len(sys.argv) != 3:
     print("Usage: python SAR_indexer.py news_folder index_file")
@@ -61,15 +68,13 @@ while len(news_files) > 0:
             stemset.add(word)
             stems[st_word] = stemset
             if word not in indiceInvertido:
-                permWord = list(word)
-                permWord.append("$")
-                for i in range(1, len(permWord)):
-                    permuterm.add(permWord[i:] + permWord[:i])
+                addToPerm(word)
             addToIndex(indiceInvertido, word, (docid, pos))
         # Process category
         categoria = re.split(delimiter_cat, news_text)[1]
         for word in set(procesarNoticia(categoria)):
             addToIndex(catIndex, word, (docid, pos))
+            addToPerm(word)
         # Process date
         date = re.split(delimiter_date, news_text)[1]
         addToIndex(dateIndex, date, (docid, pos))
@@ -77,6 +82,7 @@ while len(news_files) > 0:
         title = re.split(delimiter_title, news_text)[1]
         for word in set(procesarNoticia(title)):
             addToIndex(titleIndex, word, (docid, pos))
+            addToPerm(word)
         allnewsid.append((docid, pos))
         pos += 1
         total += 1

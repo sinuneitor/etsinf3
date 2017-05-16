@@ -40,8 +40,18 @@ def getPList(word, i=None):
             symbol = "*"
         elif "?" in word:
             symbol = "?"
-        (prefix, suffix) = word.split(symbol)
-        words = permuterm.find(list(suffix + "$" + prefix), wildcard=symbol)
+        else:
+            return []
+        count = len([x for x, ltr in enumerate(word) if ltr == symbol])
+        if count == 1:
+            (prefix, suffix) = word.split(symbol)
+            pSearch = list(suffix + "$" + prefix)
+        elif count == 2:
+            (_, pSearch, _) = word.split(symbol)
+            pSearch = list(pSearch)
+        else:
+            return []
+        words = permuterm.find(pSearch, wildcard=symbol)
         aux = []
         for e in words:
             s, p = e.split("$")
