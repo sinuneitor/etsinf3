@@ -10,4 +10,4 @@ node_modules/
 desktop.ini
 
 __pycache__
-SAR_utils.pyc
+*.pyc
