@@ -1,0 +1,231 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 11.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      7528,        223]
+NotebookOptionsPosition[      6822,        193]
+NotebookOutlinePosition[      7161,        208]
+CellTagsIndexPosition[      7118,        205]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Pr\[AAcute]ctica III", "Title",
+ CellChangeTimes->{{3.704517116985023*^9, 3.704517150600971*^9}}],
+
+Cell["\<\
+Alemany Ibor, Sergio
+Galindo Jim\[EAcute]nez, Carlos Santiago\
+\>", "Subtitle",
+ CellChangeTimes->{{3.7045171231071177`*^9, 3.7045171444236803`*^9}, {
+  3.70451721921307*^9, 3.704517219733749*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Ejercicio I : naturales calculados por sistemas P", "Section",
+ CellChangeTimes->{{3.7045171670072947`*^9, 3.7045172143483*^9}}],
+
+Cell[TextData[{
+ "Apartado a:\n\tLa membrana 3 al deshacerse genera el siguiente lenguaje: ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SuperscriptBox["b", "x"], 
+    SuperscriptBox["f", 
+     SuperscriptBox["2", "x"]]}], TraditionalForm]],
+  FormatType->"TraditionalForm"],
+ ", donde x es el n\[UAcute]mero de transiciones hasta que se ejecuta la \
+regla que deshace la membrana m\[AAcute]s 1.\n\tLa membrana 2 al deshacerse \
+genera ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SuperscriptBox["d", "x"], 
+    SuperscriptBox["e", 
+     SuperscriptBox["x", "2"]]}], TraditionalForm]],
+  FormatType->"TraditionalForm"],
+ "\n\tLa membrana 1 expulsa al exterior todas las d, por lo tanto el conjunto \
+de naturales ser\[AAcute] el n\[UAcute]mero de e restantes, que es ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["x", "2"], TraditionalForm]],
+  FormatType->"TraditionalForm"],
+ " (x>=0)\n\tResultado: el conjunto de naturales es [1, 4, 9, 16, 25...]\n\n\
+Apartado b:\n\tLa membrana 1 tiene 2 opciones:\n\t\tOpci\[OAcute]n 1: \
+introducir en la membrana 2 ",
+ StyleBox["bccbcc",
+  FontWeight->"Bold"],
+ " sin modificar su estado\n\t\tOpci\[OAcute]n 2: mover ",
+ StyleBox["aa ",
+  FontWeight->"Bold"],
+ "al exterior (borr\[AAcute]ndolo de la membrana 1)\n\tPor tanto en el \
+interior de la membrana dos tendremos ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox[
+    RowBox[{"(", "bcc", ")"}], 
+    RowBox[{"2", "n"}]], TraditionalForm]],
+  FormatType->"TraditionalForm"],
+ ", donde n es el n\[UAcute]mero de transiciones hasta que se ejecuta la opci\
+\[OAcute]n 2 (que termina el proceso).\n\tResultado: el conjunto de naturales \
+es [0, 6, 12, 18, 24...]"
+}], "Text",
+ CellChangeTimes->{{3.704522510306861*^9, 3.704522979997941*^9}, {
+  3.704523404685253*^9, 3.704523407863768*^9}, {3.7045236958654737`*^9, 
+  3.70452371428866*^9}, {3.704524631266062*^9, 3.704524650663217*^9}, {
+  3.7045246893398046`*^9, 3.704524770303081*^9}, {3.704524846057345*^9, 
+  3.70452488456462*^9}, {3.704525019245068*^9, 3.7045251288602467`*^9}, {
+  3.704525366894202*^9, 3.704525383027165*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Ejercicio II : funci\[OAcute]n definida por sistema P", "Section",
+ CellChangeTimes->{{3.704517225547216*^9, 3.704517257718327*^9}}],
+
+Cell[TextData[{
+ "La entrada de este sistema toma la forma ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SuperscriptBox["a", "n"], 
+    SuperscriptBox["c", "k"], "d"}], TraditionalForm]]],
+ "\nEl sistema s\[OAcute]lo calcula \[OpenCurlyDoubleQuote]n\
+\[CloseCurlyDoubleQuote] si ",
+ StyleBox["k",
+  FontWeight->"Bold"],
+ " no es 0 y ",
+ StyleBox["n",
+  FontWeight->"Bold"],
+ " no es m\[UAcute]ltiplo de ",
+ StyleBox["k",
+  FontWeight->"Bold"],
+ "; en cualquier otro caso, devuelve \[OpenCurlyDoubleQuote]s\
+\[CloseCurlyDoubleQuote], tal y como describe el c\[OAcute]digo a continuaci\
+\[OAcute]n:"
+}], "Text",
+ CellChangeTimes->{{3.7045174015758743`*^9, 3.704517405136952*^9}, {
+  3.704519582954817*^9, 3.704519593420247*^9}, {3.704519635099689*^9, 
+  3.704519642058538*^9}, {3.7045199634951763`*^9, 3.704519969047268*^9}, {
+  3.704520002711966*^9, 3.704520221979659*^9}, {3.704520340356701*^9, 
+  3.704520496100226*^9}}],
+
+Cell[BoxData[
+ RowBox[{"If", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{
+     RowBox[{
+      RowBox[{"k", "\[NotEqual]", "0"}], "&"}], 
+     RowBox[{"Mod", "[", 
+      RowBox[{"n", ",", "k"}], "]"}]}], "\[NotEqual]", "0"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"Return", "[", "\"\<n\>\"", "]"}], ",", "\[IndentingNewLine]", 
+   RowBox[{"Return", "[", "\"\<s\>\"", "]"}]}], "\[IndentingNewLine]", 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.7045196479943123`*^9, 3.704519658436195*^9}, {
+  3.704519730445321*^9, 3.704519756024881*^9}, {3.704519806608794*^9, 
+  3.70451994133363*^9}, {3.7045202902303133`*^9, 3.7045203359934807`*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Ejercicio III : m\[OAcute]dulo que calcula transiciones de sistemas P\
+\>", "Section",
+ CellChangeTimes->{{3.704517259101972*^9, 3.704517277195092*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"Ejercicio3", "[", "n_", "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"i", ",", "res"}], "}"}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"res", "=", 
+       RowBox[{"{", "}"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"For", "[", 
+       RowBox[{
+        RowBox[{"i", "=", "0"}], ",", 
+        RowBox[{"i", "<", "n"}], ",", 
+        RowBox[{"i", "++"}], ",", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"If", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"Random", "[", 
+             RowBox[{"Integer", ",", "1"}], "]"}], "\[Equal]", "0"}], ",", 
+           "\[IndentingNewLine]", 
+           RowBox[{"res", "=", 
+            RowBox[{"Join", "[", 
+             RowBox[{"res", ",", 
+              RowBox[{"{", 
+               RowBox[{
+               "b", ",", "c", ",", "c", ",", "b", ",", "c", ",", "c"}], 
+               "}"}]}], "]"}]}], ",", "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{"Return", "[", "res", "]"}], ";"}]}], 
+          "\[IndentingNewLine]", "]"}], ";"}]}], "\[IndentingNewLine]", "]"}],
+       ";", "\[IndentingNewLine]", 
+      RowBox[{"Return", "[", "res", "]"}], ";"}]}], "\[IndentingNewLine]", 
+    "]"}]}], ";"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.704522443547647*^9, 3.704522445381057*^9}, {
+   3.704546809470195*^9, 3.704546819445489*^9}, {3.704548199052125*^9, 
+   3.70454822811485*^9}, {3.7045482722340803`*^9, 3.704548330300775*^9}, {
+   3.7045483613677998`*^9, 3.704548369743799*^9}, 3.704548401567266*^9, {
+   3.7045484362638197`*^9, 3.7045484538374147`*^9}, {3.704548488741156*^9, 
+   3.7045485174838667`*^9}}]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{956, 1044},
+WindowMargins->{{Automatic, 2}, {Automatic, 16}},
+FrontEndVersion->"11.0 for Linux x86 (64-bit) (September 21, 2016)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 103, 1, 93, "Title"],
+Cell[686, 25, 207, 5, 81, "Subtitle"],
+Cell[CellGroupData[{
+Cell[918, 34, 134, 1, 65, "Section"],
+Cell[1055, 37, 2072, 50, 379, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3164, 92, 138, 1, 65, "Section"],
+Cell[3305, 95, 920, 25, 84, "Text"],
+Cell[4228, 122, 635, 15, 101, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4900, 142, 162, 3, 65, "Section"],
+Cell[5065, 147, 1729, 42, 257, "Input",
+ InitializationCell->True]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
