@@ -52,4 +52,4 @@ aux = telabels == (gs > gh);
 errors = size(find(aux==0))(1,1);
 
 # Display percentage of errors
-disp(errors / size(tedata)(1,1));
+disp(errors / nte);
