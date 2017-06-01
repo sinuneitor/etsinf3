@@ -11,6 +11,7 @@ set yrange [0.2:25]
 set ytics (0.5, 1, 2, 5, 10, 20)
 set ylabel "% error"
 
+set grid xtics ytics
 set key off
 
 plot 'result.out' using 1:($2*100) with lines lt 1, '' using 1:($2*100):($3*100) with yerrorbars lt 1
