@@ -1,0 +1,3 @@
+[submodule "SAR/proyecto/android-app"]
+	path = SAR/proyecto/android-app
+	url = https://github.com/kauron/news-sarcher
