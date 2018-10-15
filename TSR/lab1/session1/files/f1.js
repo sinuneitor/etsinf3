@@ -5,3 +5,4 @@ fs.readFile('/etc/hosts', 'utf8', function(err,data) {
 	}
 	console.log(data);
 });
+//afafa
